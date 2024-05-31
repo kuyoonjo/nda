@@ -4,7 +4,11 @@
   "description": "tauri-plugin-fs",
   "windows": ["*"],
   "permissions": [
-    "fs:allow-read-text-file",
-    "fs:allow-write-text-file"
+    "fs:read-all",
+    "fs:write-all",
+    {
+      "identifier": "fs:scope",
+      "allow": ["**"]
+    }
   ]
 }
