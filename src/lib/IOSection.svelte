@@ -6,13 +6,15 @@
   import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
   import { downloadDir } from "@tauri-apps/api/path";
   import moment from "moment";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import type { IFunc, IParser } from "./IO";
+  import { ContextMenu } from "./contextMenu";
+  import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 
   export let id: string;
   export let input = "";
   export let output: string[] = [];
-  let maxOutputStr = '50';
+  let maxOutputStr = "50";
   let maxOutput = 50;
   function refreshMaxOutput() {
     maxOutput = Number(maxOutputStr) || 50;
@@ -215,12 +217,30 @@
     }
   }
 
+  let outputEl: HTMLDivElement;
+  const contextmenu = new ContextMenu([
+    {
+      text: "Copy Records",
+      onclick() {
+        console.log(outputEl.innerText)
+        writeText(outputEl.innerText);
+      },
+    },
+  ]);
+  async function onContextmenu(e: MouseEvent) {
+    await contextmenu.open(e);
+  }
+
   const ed = createEventDispatcher<{ ready: void }>();
 
   onMount(async () => {
     await loadExFuncItems();
     await loadExParserItems();
     ed("ready");
+  });
+
+  onDestroy(() => {
+    contextmenu.destroy();
   });
 
   export const IOHandler = {
@@ -283,7 +303,13 @@
   <div style="flex-grow: 1;"></div>
   <button class="btn primary" on:click={clearOutput}>Clear</button>
 </div>
-<div class="fake-textarea" style="margin: 8px 0 12px; flex: 2 1 0;">
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div
+  class="fake-textarea"
+  style="margin: 8px 0 12px; flex: 2 1 0;"
+  on:contextmenu|preventDefault|stopPropagation={onContextmenu}
+  bind:this={outputEl}
+>
   {#each output as item}
     <pre>{@html item}</pre>
   {/each}

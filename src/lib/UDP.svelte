@@ -57,7 +57,7 @@
   async function bind() {
     const ok = await invoke("udp_bind", { id: windowId, bindAt: local });
     if (ok) IOHandler.addOutput(`UDP bond at ${local}`);
-    else IOHandler.addOutput(`UDP failed to bind at ${local}`);
+    else return IOHandler.addOutput(`UDP failed to bind at ${local}`);
     if (!localItems.includes(local)) {
       exLocalItems.unshift(local);
       storage.set(k_exLocalItems, exLocalItems);

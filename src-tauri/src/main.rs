@@ -112,6 +112,7 @@ fn main() {
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_appearance::init(ctx.config_mut()))
         .invoke_handler(tauri::generate_handler![
             open_save_dialog,
