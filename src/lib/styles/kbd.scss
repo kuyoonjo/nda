@@ -1,0 +1,23 @@
+$kbd_color: #777;
+$dark_kbd_color: #999;
+
+.kbd {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  color: $kbd_color;
+  
+  &::after {
+    content: '+';
+    margin: 0 4px;
+  }
+
+  &:last-child::after {
+    content: '';
+    margin: 0;
+  }
+}
+
+.dark .kbd {
+  color: $dark_kbd_color;
+}

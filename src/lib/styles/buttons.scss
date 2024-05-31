@@ -1,0 +1,106 @@
+@use "var";
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  margin: 0;
+  font-size: 12px;
+  height: 24px;
+  cursor: default;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+  -webkit-app-region: no-drag;
+
+  background: #ddd;
+  
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  &:active {
+    background: #ccc;
+  }
+
+  &.primary {
+    background: var.$color_primary;
+    color: white;
+    &:active {
+      background: #5093f8;
+    }
+
+    &:disabled {
+      background: #96bffc;
+    }
+  }
+
+  &.error {
+    background: var.$color_error;
+    color: white;
+    &:active {
+      background: #fc5b5b;
+    }
+
+    &:disabled {
+      background: #fb9393;
+    }
+  }
+
+  &.link {
+    color: var.$color_primary;
+    background: none;
+    box-shadow: none;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+}
+
+.dark .btn.default {
+  background: #666;
+  color: white;
+
+  &:active {
+    background: #888;
+  }
+}
+
+.btn-group {
+  display: flex;
+  .btn {
+    flex: 1 1 auto;
+    background: #bbb;
+    border-radius: 0;
+    border-right: 1px solid transparent;
+
+    &.active {
+      background: var.$color_primary;
+      color: white;
+    }
+
+    &:first-child {
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+    &:last-child {
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      border-right: none;
+    }
+  }
+}
+
+.dark .btn-group .btn {
+  background: #555;
+  color: white;
+  &.active {
+    background: var.$color_primary;
+  }
+}

@@ -1,0 +1,65 @@
+@use 'var';
+
+$bar_menu_bg: var.$highlight_bg;
+$bar_menu_border_color: var.$border_color;
+$bar_menu_item_hover_color: var.$highlight_hover_bg;
+
+$dark_bar_menu_bg: var.$dark_highlight_bg;
+$dark_bar_menu_border_color: var.$dark_border_color;
+$dark_bar_menu_item_hover_color: var.$dark_highlight_hover_bg;
+
+.bar-menu {
+  background: $bar_menu_bg;
+  border: 1px solid $bar_menu_border_color;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  font-size: 13px;
+  z-index: 999;
+
+  .bar-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid $bar_menu_border_color;
+    cursor: default;
+
+    &:hover {
+      background: $bar_menu_item_hover_color;
+    }
+
+    &:first-child {
+      border-top-right-radius: 3px;
+    }
+
+    &:last-child {
+      border-bottom: none;
+      border-bottom-right-radius: 3px;
+    }
+
+    &.with-shortcut {
+      justify-content: space-between;
+
+      > div {
+        display: flex;
+        align-items: center;
+
+        &:last-child {
+          margin-left: 32px;
+        }
+      }
+    }
+  }
+}
+
+.dark .bar-menu {
+  background: $dark_bar_menu_bg;
+  border-color: $dark_bar_menu_border_color;
+
+  .bar-menu-item {
+    border-color: $dark_bar_menu_border_color;
+
+    &:hover {
+      background: $dark_bar_menu_item_hover_color;
+    }
+  }
+}

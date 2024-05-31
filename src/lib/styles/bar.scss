@@ -1,0 +1,63 @@
+@use "var";
+
+$bar_bg: var.$highlight_bg;
+$bar_border_color: var.$border_color;
+$bar_item_color: var.$highlight_color;
+$bar_item_active_color: var.$highlight_active_color;
+
+$dark_bar_bg: var.$dark_highlight_bg;
+$dark_bar_border_color: var.$dark_border_color;
+$dark_bar_item_color: var.$dark_highlight_color;
+$dark_bar_item_active_color: var.$dark_highlight_active_color;
+
+.bar {
+  background: $bar_bg;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid;
+  border-color: $bar_border_color;
+
+  .bar-separator {
+    flex-grow: 1;
+  }
+
+  .bar-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    color: $bar_item_color;
+
+    .bar-item-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+.dark .bar {
+  border-color: $dark_bar_border_color;
+  background: $dark_bar_bg;
+
+  .bar-item {
+    color: $dark_bar_item_color;
+
+    &.active {
+      color: $dark_bar_item_active_color;
+    }
+  }
+}
+
+.light .bar .bar-item.active {
+  .bar-item-btn {
+    background: $bar_item_active_color;
+    color: white;
+    border-radius: 5px;
+  }
+}

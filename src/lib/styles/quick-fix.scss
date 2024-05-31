@@ -1,0 +1,42 @@
+@use "var";
+
+.quick-fix {
+  border: 1px solid var.$border_color;
+  background: var.$bg;
+  color: var.$color;
+  font-size: 10px;
+  border-radius: 5px;
+  z-index: 999;
+  user-select: none;
+  -webkit-user-select: none;
+
+  > div {
+    padding: 6px;
+  }
+
+  .text {
+    white-space: nowrap;
+    border-bottom: 1px solid var.$border_color;
+
+    span {
+      font-weight: bold;
+    }
+  }
+
+  .button {
+    .btn.link {
+      font-size: 10px;
+      padding: 0;
+      height: auto;
+    }
+  }
+}
+
+.dark .quick-fix {
+  border-color: var.$dark_border_color;
+  background: var.$dark_bg;
+  color: var.$dark_color;
+  .text {
+    border-color: var.$dark_border_color;
+  }
+}

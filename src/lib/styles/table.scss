@@ -1,0 +1,225 @@
+@use "var";
+
+$minColWidth: 30px;
+
+$active_color: #ccc;
+$dark_active_color: #666;
+
+$row_color: #fff;
+$row_color_even: #f2f2f2;
+$dark_row_color: #1a1a1a;
+$dark_row_color_even: #202020;
+
+table {
+  min-width: 100%;
+  border: 1px;
+  border-collapse: separate;
+  font-size: 12px;
+  text-align: left;
+  border-spacing: 0;
+}
+
+thead {
+  th {
+    font-weight: normal;
+    background-color: var.$highlight_bg;
+    position: sticky;
+    top: 0;
+
+    align-items: center;
+    min-width: $minColWidth;
+
+    padding: 0;
+
+    border-top: 1px solid $active_color;
+    border-bottom: 1px solid $active_color;
+
+    &:active .table-header {
+      background: $active_color;
+    }
+
+    &:first-child .table-header div:first-child {
+      padding-left: 8px;
+    }
+
+    .table-header {
+      display: flex;
+      height: 24px;
+      align-items: center;
+
+      div:first-child {
+        padding-left: 16px;
+      }
+
+      &.search-open .table-header-search svg {
+        transform: rotate(45deg);
+      }
+
+      .table-header-search {
+        padding-right: 4px;
+        display: flex;
+        align-items: center;
+      }
+
+      .table-header-content {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+
+        &.ready {
+          flex: 1 1 auto;
+        }
+      }
+
+      .table-header-accessories {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .table-header-separator {
+        flex-shrink: 0;
+        height: 8px;
+        width: 3px;
+        cursor: col-resize !important;
+        &::after {
+          content: "";
+          display: block;
+          background: $active_color;
+          height: 8px;
+          width: 1px;
+          margin: 0 1px;
+        }
+      }
+    }
+
+    &:last-child .table-header .table-header-separator {
+      display: none;
+    }
+  }
+}
+
+tr {
+  width: 100%;
+  overflow: hidden;
+
+  &.active td {
+    background: var.$highlight_active_color !important;
+    color: white;
+  }
+}
+
+td {
+  background: $row_color;
+  padding-left: 16px;
+  padding-right: 4px;
+  // border-bottom: 1px solid var.$bg;
+  width: 0;
+
+  &:first-child {
+    padding-left: 8px;
+  }
+}
+
+th,
+td {
+  height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+  min-width: $minColWidth;
+  width: 0;
+}
+
+tr:nth-child(even) td {
+  background: $row_color_even;
+}
+
+.table-fill {
+  flex: 1 1 auto;
+  background-image: repeating-linear-gradient($row_color 0 26px, $row_color_even 0 52px);
+
+  &.reverse {
+    background-image: repeating-linear-gradient($row_color_even 0 26px, $row_color 0 52px);
+  }
+}
+
+.dark {
+  thead th {
+    background: var.$dark_highlight_bg;
+    border-color: var.$dark_border_color;
+
+    &:active .table-header {
+      background: $dark_active_color;
+    }
+
+    .table-header .table-header-separator::after {
+      background: $dark_active_color;
+    }
+  }
+
+  td {
+    background: $dark_row_color;
+  }
+
+  tr:nth-child(even) td {
+    background: $dark_row_color_even;
+  }
+
+  .table-fill {
+    background-image: repeating-linear-gradient($dark_row_color 0 26px, $dark_row_color_even 0 52px);
+    &.reverse {
+      background-image: repeating-linear-gradient($dark_row_color_even 0 26px, $dark_row_color 0 52px);
+    }
+  }
+}
+
+.table-search {
+  position: fixed;
+  background: var.$bg;
+  padding: 0 15px;
+  border: 1px solid $active_color;
+  border-top: none;
+  min-width: 100px;
+}
+
+.dark .table-search {
+  background: var.$dark_bg;
+  border-color: $dark_active_color;
+}
+
+.table-control {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  flex-wrap: wrap;
+
+  .table-control-item {
+    display: flex;
+    align-items: center;
+
+    &::after {
+      content: "";
+      display: block;
+      height: 8px;
+      width: 1px;
+      background: $active_color;
+      margin: 0 6px;
+    }
+
+    &:last-child::after {
+      display: none;
+    }
+  }
+
+  button.btn.link {
+    padding: 0;
+    height: auto;
+  }
+}
+
+.dark .table-control {
+  .table-control-item::after {
+    background: $dark_active_color;
+  }
+}

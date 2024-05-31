@@ -1,0 +1,477 @@
+@use "var";
+
+$font-size-default: 13px;
+
+$input_border_color: #ccc;
+$input_bg: #fff;
+$input_border_active_color: #aaa;
+
+$dark_input_border_color: #aaa;
+$dark_input_bg: #000;
+$dark_input_border_active_color: #fff;
+$dark_input_color: #ddd;
+
+label {
+  display: inline-flex;
+  font-size: $font-size-default;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-items: center;
+}
+
+.fake-textarea {
+  overflow: scroll;
+
+  pre {
+    word-break: break-all;
+    white-space: pre-wrap;
+    line-height: 18px;
+    margin: 4px 0;
+    text-indent: -8px;
+  }
+}
+
+.fake-textarea,
+textarea {
+  word-break: break-all;
+  font-size: 12px;
+  font-weight: normal;
+  font-family: monospace;
+}
+
+.fake-input,
+.fake-textarea,
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid $input_border_color;
+  border-radius: 2px;
+  margin: 0;
+  padding: 5px 10px;
+  background: $input_bg;
+
+  &:active,
+  &:focus,
+  &:focus-visible {
+    border-color: $input_border_active_color;
+    outline: none;
+    box-shadow: none;
+  }
+
+  &:disabled {
+    border-color: $input_border_color;
+  }
+
+  &.error {
+    border-color: var.$color_error;
+  }
+}
+
+.dark {
+  .fake-input,
+  .fake-textarea,
+  textarea,
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  select {
+    background: $dark_input_bg;
+    border-color: $dark_input_border_color;
+    color: $dark_input_color;
+
+    &:active,
+    &:focus,
+    &:focus-visible {
+      border-color: $dark_input_border_active_color;
+    }
+
+    &:disabled {
+      border-color: $dark_input_border_color;
+    }
+
+    &.error {
+      border-color: var.$color_error;
+    }
+  }
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: normal;
+}
+
+// .form-control {
+//   display: inline-block;
+//   width: 100%;
+//   min-height: 25px;
+//   padding: $padding-less $padding;
+//   font-size: $font-size-default;
+//   line-height: $line-height-default;
+//   background-color: $chrome-color;
+//   border: 1px solid $border-color;
+//   border-radius: $default-border-radius;
+//   outline: none;
+
+//   &:focus {
+//     border-color: $focus-input-color;
+//     box-shadow: 0 0 0 3px $focus-input-color;
+//   }
+// }
+
+// // Reset height for `textarea`s
+// textarea {
+//   height: auto;
+// }
+
+// Form groups
+//
+// Designed to help with the organization and spacing of vertical forms. For
+// horizontal forms, use the predefined grid classes.
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+// Checkboxes and radios
+//
+// Indent the labels to position radios/checkboxes as hanging controls.
+
+.radio,
+.checkbox {
+  position: relative;
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  label {
+    padding-left: 20px;
+    margin-bottom: 0;
+    font-weight: normal;
+  }
+}
+
+.radio input[type="radio"],
+.radio-inline input[type="radio"],
+.checkbox input[type="checkbox"],
+.checkbox-inline input[type="checkbox"] {
+  position: absolute;
+  margin-left: -20px;
+}
+
+.serach-box {
+  position: relative;
+  display: inline-block;
+
+  input {
+    padding-left: 18px;
+  }
+
+  .prefix {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 4px;
+    padding-right: 4px;
+    display: flex;
+    align-items: center;
+
+    svg {
+      color: #888;
+    }
+  }
+
+  .suffix {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 4px;
+    display: flex;
+    align-items: center;
+
+    .suffix-btn:hover {
+      background: #ddd;
+    }
+
+    .suffix-btn.active {
+      background: var.$highlight_active_color !important;
+
+      svg {
+        color: white;
+      }
+    }
+  }
+}
+
+.dark .serach-box {
+  .icon svg {
+    color: #ccc;
+  }
+
+  .suffix .suffix-btn:hover {
+    background: #333;
+  }
+}
+
+.input-group {
+  margin: 18px 0;
+  > label {
+    display: block;
+    font-size: 10.5px;
+    margin: 0;
+  }
+
+  .fake-input,
+  .fake-textarea,
+  textarea,
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  select {
+    border-radius: 0;
+    border-left: none;
+    border-top: none;
+    border-right: none;
+    background: transparent;
+    width: -webkit-fill-available;
+    font-size: 13px;
+    padding-left: 1px;
+    padding-right: 1px;
+  }
+
+  > .radio-group {
+    display: flex;
+
+    > .radio {
+      margin-top: 6px;
+      margin-bottom: 0;
+      margin-right: 12px;
+
+      label {
+        font-size: 12px;
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  > :not(input).error {
+    color: var.$color_error;
+  }
+  > .tip {
+    color: #999;
+  }
+  > .tip,
+  > :not(input).error {
+    padding: 2px 1px 0;
+    font-size: 12px;
+  }
+
+  > label > .note {
+    color: #999;
+    margin-left: 24px;
+  }
+}
+
+.dark .input-group > .tip,
+.dark .input-group > label > .note {
+  color: #777;
+}
+
+.removable-list {
+  padding: 15px 0;
+  .item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px dashed;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    label {
+      margin: 0;
+      padding-left: 1px;
+    }
+
+    .btn {
+      color: var.$color_error;
+      background: none;
+      padding-right: 1px;
+
+      &:active {
+        opacity: 0.7;
+      }
+    }
+  }
+}
+
+.numbers {
+  display: flex;
+
+  .number {
+    width: 24px;
+    height: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10.5px;
+    background: #ccc;
+
+    // border-top: 1px solid var.$border_color;
+    // border-bottom: 1px solid var.$border_color;
+    // border-left: 1px solid var.$border_color;
+
+    &:first-child {
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+    &:last-child {
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      // border-right: 1px solid var.$border_color;
+    }
+
+    &.active {
+      background: var.$color_primary;
+      color: white;
+    }
+  }
+}
+
+.dark .numbers .number {
+  background: #282828;
+  &.active {
+    background: var.$color_primary;
+    color: white;
+  }
+}
+
+.switch {
+  transition: all 150ms;
+  background: #bbb;
+  border-radius: 10px;
+  width: 32px;
+  height: 20px;
+  appearance: none;
+  margin: 0;
+
+  &:before {
+    background: white;
+    display: block;
+    border-radius: 50%;
+    content: "";
+    width: 16px;
+    height: 16px;
+    margin: 2px;
+
+    transition: all 150ms;
+  }
+
+  &.multiple:before {
+    border-radius: 1px;
+    height: 2px;
+    margin: 9px 2px 2px 8px;
+  }
+
+  &:checked {
+    background: var.$color_primary;
+    &:before {
+      margin-left: 14px;
+    }
+  }
+}
+
+label .switch {
+  margin-right: 8px;
+}
+
+.dark .switch {
+  background: #555;
+  &:checked {
+    background: var.$color_primary;
+  }
+}
+
+.required {
+  color: var.$color_error;
+  margin-right: 4px;
+}
+
+.range {
+  margin: auto;
+  width: 100%;
+  background: #bbb;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 4px;
+  border-radius: 2px;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: var.$color_primary;
+    overflow: visible;
+
+    &:active {
+      opacity: 0.9;
+    }
+  }
+}
+
+.dark .range {
+  background: #555;
+}
+
+input.password {
+  -webkit-text-security: disc;
+  -mox-text-security: disc;
+}
+
+.auto-fill-menu {
+  position: absolute;
+  background: $input_bg;
+  border: 1px solid $input_border_active_color;
+  top: calc(100% - 1px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.dark .auto-fill-menu {
+  background: $dark_input_bg;
+  border-color: $dark_input_border_active_color;
+  z-index: 999;
+}
+
+.auto-fill-menu-item {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  height: 25px;
+  padding: 0 10px;
+
+  &:hover {
+    background: var.$highlight_hover_bg;
+  }
+}
+
+.dark .auto-fill-menu-item:hover {
+    background: var.$dark_highlight_hover_bg;
+}

@@ -1,0 +1,149 @@
+@use "var";
+
+$btn-size: 24px;
+$icon-size: $btn-size - 8px;
+$icon-size-img: $btn-size - 4px;
+$border-radius: 5px;
+
+.toolbar {
+  position: absolute;
+  top: 12px;
+  left: 24px;
+  z-index: 1;
+
+  &.steaky {
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 24px;
+    background: var.$bg;
+  }
+
+  .box {
+    height: $btn-size;
+    display: inline-flex;
+    align-items: center;
+
+    .button {
+      width: $btn-size;
+      height: $btn-size;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var.$bg;
+      border-top: 1px solid var.$border_color;
+      border-bottom: 1px solid var.$border_color;
+      border-left: 1px solid var.$border_color;
+      position: relative;
+
+      &:active,
+      &.pressed {
+        background: var.$highlight_bg;
+
+        img {
+          opacity: 0.7;
+        }
+      }
+      &.highlight {
+        background: #bbb;
+      }
+      &:first-child {
+        border-top-left-radius: $border-radius;
+        border-bottom-left-radius: $border-radius;
+      }
+      &:last-child {
+        border-right: 1px solid var.$border_color;
+        border-top-right-radius: $border-radius;
+        border-bottom-right-radius: $border-radius;
+      }
+
+      &.showing-list {
+        border-bottom-right-radius: 0;
+      }
+
+      svg {
+        width: $icon-size !important;
+      }
+
+      img {
+        width: $icon-size-img !important;
+        height: auto;
+      }
+
+      .corner {
+        width: 4px;
+        height: 4px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+
+        &::after {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 0;
+          right: 1px;
+          bottom: 1px;
+          border-style: solid;
+          border-width: 4px 4px 0 0;
+          border-color: transparent var.$color transparent transparent;
+        }
+      }
+    }
+
+    .list .button {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: 1px solid var.$border_color;
+      border-bottom: none;
+
+      &.last {
+        border-bottom-right-radius: $border-radius;
+        border-bottom-left-radius: $border-radius;
+        border-bottom: 1px solid var.$border_color;
+      }
+
+      &:hover {
+        background: var.$highlight_bg;
+      }
+    }
+  }
+}
+
+.dark .toolbar {
+  &.steaky {
+    background: var.$dark_bg;
+  }
+
+  .box .button {
+    background: var.$dark_highlight_bg;
+    border-color: var.$dark_border_color;
+
+    &:active,
+    &.pressed {
+      background: var.$dark_bg;
+    }
+    &.highlight {
+      background: var.$color_primary;
+      border-color: var.$color_primary;
+    }
+
+    .corner::after {
+      border-color: transparent var.$dark_color transparent transparent;
+    }
+  }
+
+  .box .list .button {
+    border-color: var.$dark_border_color;
+
+    &:last-child {
+      border-color: var.$dark_border_color;
+    }
+
+    &:hover {
+      background: var.$dark_bg;
+    }
+  }
+}

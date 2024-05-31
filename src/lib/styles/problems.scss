@@ -1,0 +1,51 @@
+@use "var";
+
+.problems {
+  border: 1px solid var.$border_color;
+  background: var.$highlight_bg;
+  color: var.$color;
+  font-size: 10px;
+  border-radius: 5px;
+  z-index: 999;
+  user-select: none;
+  -webkit-user-select: none;
+
+  > div {
+    padding: 6px;
+  }
+
+  .problem {
+    white-space: nowrap;
+    border-bottom: 1px solid var.$border_color;
+    display: flex;
+    justify-content: space-between;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .btn.link {
+      font-size: 10px;
+      padding: 0;
+      height: auto;
+      margin-left: 12px;
+    }
+  }
+
+  .button {
+    .btn.link {
+      font-size: 10px;
+      padding: 0;
+      height: auto;
+    }
+  }
+}
+
+.dark .problems{
+  border-color: var.$dark_border_color;
+  background: var.$dark_highlight_bg;
+  color: var.$dark_color;
+  .problem {
+    border-color: var.$dark_border_color;
+  }
+}

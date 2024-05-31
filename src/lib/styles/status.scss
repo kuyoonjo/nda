@@ -1,0 +1,51 @@
+@use "var";
+
+$status_bg: var.$highlight_bg;
+$status_border_color: var.$border_color;
+
+$dark_status_bg: var.$dark_highlight_bg;
+$dark_status_border_color: var.$dark_border_color;
+
+.status {
+  height: 32px;
+  border-top: 1px solid;
+  border-color: $status_border_color;
+  background: $status_bg;
+  // transition: height ease-in-out 300ms;
+  overflow: hidden;
+
+  &.hidden {
+    height: 0;
+  }
+
+  display: flex;
+  align-items: center;
+
+  > .item {
+    font-size: 12px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+
+    > span {
+      margin-left: 2px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    // &:hover {
+    //   background: #c0c0c0;
+    // }
+  }
+
+  > .fill {
+    flex: 1 1 auto;
+  }
+}
+
+.dark .status {
+  border-color: $dark_status_border_color;
+  background: $dark_status_bg;
+}

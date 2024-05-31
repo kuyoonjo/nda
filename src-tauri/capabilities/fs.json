@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "fs-capability",
+  "description": "tauri-plugin-fs",
+  "windows": ["*"],
+  "permissions": [
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file"
+  ]
+}

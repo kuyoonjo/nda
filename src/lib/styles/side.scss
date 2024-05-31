@@ -1,0 +1,88 @@
+@use "var";
+
+$side_bg: var.$highlight_bg;
+$side_border_color: var.$border_color;
+$side_item_color: var.$highlight_color;
+$side_item_active_color: var.$highlight_active_color;
+
+$dark_side_bg: var.$dark_highlight_bg;
+$dark_side_border_color: var.$dark_border_color;
+$dark_side_item_color: var.$dark_highlight_color;
+$dark_side_item_active_color: var.$dark_highlight_active_color;
+
+.side {
+  background: $side_bg;
+  height: 100%;
+  display: flex;
+  flex-shrink: 0;
+  // transition: width 300ms;
+  overflow: hidden;
+
+  &.resizing {
+    transition: none;
+  }
+
+  .content {
+    background: $side_bg;
+    flex-grow: 1;
+  }
+
+  .resizer {
+    flex: 0 0 1px;
+    width: 1px;
+    background: $side_border_color;
+    cursor: col-resize;
+
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -2px;
+      width: 1px;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+      z-index: 100;
+    }
+  }
+}
+
+.dark .side {
+  background: $dark_side_bg;
+  .resizer {
+    background: $dark_side_border_color;
+  }
+  .content {
+    background: $dark_side_bg;
+  }
+}
+
+.side-icon {
+  border-color: #666;
+
+  header {
+    border-color: #666;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+
+  &.active header {
+    background: #666;
+  }
+}
+
+.dark .side-icon {
+  border-color: #bbb;
+
+  header {
+    border-color: #bbb;
+  }
+
+  &.active header {
+    background: #bbb;
+  }
+}

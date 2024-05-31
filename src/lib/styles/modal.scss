@@ -1,0 +1,62 @@
+@use "var";
+
+.modal {
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000bb;
+  flex-direction: column;
+  z-index: 1000;
+
+  .box {
+    background: #fff;
+    background-clip: padding-box;
+    border: 0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-width: 90%;
+    max-height: 90%;
+    overflow: hidden;
+
+    > header {
+      background: var.$highlight_active_color;
+      color: white;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      height: 40px;
+      padding-left: 16px;
+      min-width: 450px;
+      font-weight: bold;
+    }
+
+    > footer {
+      padding: 0 16px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      height: 40px;
+
+      .btn {
+        margin-left: 10px;
+      }
+    }
+  }
+  .fill {
+    flex-basis: 10%;
+    flex-shrink: 1;
+  }
+}
+
+.dark .modal {
+  background: #ffffff7f;
+  .box {
+    background: #333;
+  }
+}

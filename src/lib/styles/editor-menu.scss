@@ -1,0 +1,141 @@
+@use "var";
+
+.editor-menu {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &.hidden {
+    display: none;
+  }
+
+  .editor-menu-item,
+  .editor-menu-dir {
+    > header {
+      height: 24px;
+      font-size: 12px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+
+      > .prefix {
+        width: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .icon {
+          font-size: 14px;
+        }
+      }
+
+      > .title {
+        flex-shrink: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      > .buttons {
+        flex: 1 1 auto;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0 4px 0 12px;
+
+        .button {
+          display: none;
+          width: 15px;
+          height: 15px;
+          align-items: center;
+          justify-content: center;
+          margin-right: 2px;
+          cursor: pointer;
+          border-radius: 3px;
+          background-color: rgba(0, 0, 0, 0);
+          transition: background-color 100ms;
+
+          span {
+            cursor: pointer;
+            margin: 0;
+            height: 15px;
+            display: flex;
+            align-items: center;
+          }
+        }
+
+        .button:hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .button.always-show {
+          display: flex;
+          opacity: 0.7;
+        }
+      }
+    }
+
+    &.active > header > .buttons .button,
+    > header:hover > .buttons .button {
+      display: flex;
+
+      &.always-show {
+        opacity: 1;
+      }
+    }
+  }
+
+  .editor-menu-item {
+    &:hover {
+      background: rgba($color: var.$color_primary, $alpha: 0.2);
+    }
+    // border-top: 1px solid var.$border_color;
+
+    &.active {
+      background: var.$color_primary;
+      color: white;
+    }
+  }
+
+  > .editor-menu-dir {
+    border-bottom: 1px solid var.$border_color;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .editor-menu-dir {
+    > section {
+      display: none;
+      flex-basis: 200px;
+
+      .sub-item {
+        font-size: 12px;
+      }
+    }
+
+    &.open.shrink {
+      flex-shrink: 1;
+      overflow: hidden;
+    }
+
+    &.open > section {
+      display: block;
+    }
+  }
+}
+
+.dark .editor-menu {
+  .editor-menu-item {
+    &:hover {
+      background: var.$dark_bg;
+    }
+    &.active {
+      background: var.$color_primary;
+    }
+  }
+  > .editor-menu-dir {
+    border-bottom-color: var.$dark_border_color;
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "dialog-capability",
+  "description": "tauri-plugin-dialog",
+  "windows": ["*"],
+  "permissions": [
+    "dialog:allow-message",
+    "dialog:allow-open"
+  ]
+}

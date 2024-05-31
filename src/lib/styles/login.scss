@@ -1,0 +1,157 @@
+@use "var";
+
+.login {
+  margin-bottom: 16px;
+  border: 1px solid var.$border_color;
+  border-radius: 5px;
+
+  header {
+    background: var.$highlight_bg;
+    border-bottom: 1px solid var.$border_color;
+    padding: 8px 16px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    font-size: 13px;
+  }
+
+  section {
+    background: var.$bg;
+    padding: 16px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+    input {
+      width: 200px;
+    }
+
+    .error {
+      color: var.$color_error;
+      font-size: 13px;
+      padding: 8px 0 0 0;
+    }
+  }
+
+  .button {
+    text-align: right;
+    padding-top: 12px;
+  }
+}
+
+$line_color: #eee;
+$dark_line_color: #333;
+
+.login-bg {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      $line_color 20px,
+      $line_color 21px,
+      transparent 21px,
+      transparent 24px,
+      $line_color 24px,
+      $line_color 25px,
+      transparent 25px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 20px,
+      $line_color 20px,
+      $line_color 21px,
+      transparent 21px,
+      transparent 24px,
+      $line_color 24px,
+      $line_color 25px,
+      transparent 25px
+    );
+
+  .accessories {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .dock {
+      display: flex;
+      background: var.$highlight_bg;
+      border: 1px solid var.$border_color;
+      padding: 0 12px;
+      border-radius: 5px;
+    }
+
+    .accessory {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 32px;
+    }
+  }
+}
+
+.dark .login {
+  border-color: var.$dark_border_color;
+  header {
+    background: var.$dark_highlight_bg;
+    border-color: var.$dark_border_color;
+  }
+
+  section {
+    background: var.$dark_bg;
+  }
+}
+
+.dark .login-bg {
+  background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      $dark_line_color 20px,
+      $dark_line_color 21px,
+      transparent 21px,
+      transparent 24px,
+      $dark_line_color 24px,
+      $dark_line_color 25px,
+      transparent 25px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 20px,
+      $dark_line_color 20px,
+      $dark_line_color 21px,
+      transparent 21px,
+      transparent 24px,
+      $dark_line_color 24px,
+      $dark_line_color 25px,
+      transparent 25px
+    );
+
+    .accessories {
+      .dock {
+        display: flex;
+        background: var.$dark_highlight_bg;
+        border-color: var.$dark_border_color;
+      }
+  
+      .accessory {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 32px;
+      }
+    }
+}
