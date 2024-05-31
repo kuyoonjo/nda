@@ -238,12 +238,18 @@ fn main() {
                 } else if event.id() == new_udp_window.id() {
                     let label = "UDP-".to_string() + &new_id();
                     add_win_menu(app, &label, "Network Debug Assistant - UDP");
+                    let theme = get_theme(app);
+                    set_theme(app.clone(), theme).unwrap();
                 } else if event.id() == new_websocket_window.id() {
                     let label = "Websocket-".to_string() + &new_id();
                     add_win_menu(app, &label, "Network Debug Assistant - Websocket");
+                    let theme = get_theme(app);
+                    set_theme(app.clone(), theme).unwrap();
                 } else if event.id() == new_socketio_window.id() {
                     let label = "SocketIO-".to_string() + &new_id();
                     add_win_menu(app, &label, "Network Debug Assistant - SocketIO");
+                    let theme = get_theme(app);
+                    set_theme(app.clone(), theme).unwrap();
                 } else {
                     let id = event.id();
                     println!("id: {}", &id.0);

@@ -21,15 +21,55 @@ label {
   align-items: center;
 }
 
-.fake-textarea {
-  overflow: scroll;
+.fake-textarea,
+textarea {
+  overflow-y: scroll;
+  /* width */
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
 
-  pre {
-    word-break: break-all;
-    white-space: pre-wrap;
-    line-height: 18px;
-    margin: 4px 0;
-    text-indent: -8px;
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  /* Handle on hover */
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+.fake-textarea pre {
+  word-break: break-all;
+  white-space: pre-wrap;
+  line-height: 18px;
+  margin: 4px 0;
+  text-indent: -8px;
+}
+
+.dark {
+  .fake-textarea,
+  textarea {
+    /* Track */
+    &::-webkit-scrollbar-track {
+      background: #1f1f1f;
+    }
+
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+      background: #444;
+    }
+
+    /* Handle on hover */
+    &::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
   }
 }
 
@@ -473,5 +513,5 @@ input.password {
 }
 
 .dark .auto-fill-menu-item:hover {
-    background: var.$dark_highlight_hover_bg;
+  background: var.$dark_highlight_hover_bg;
 }
