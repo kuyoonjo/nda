@@ -15,6 +15,7 @@
     "shell:allow-open",
     "appearance:default",
     "clipboard-manager:allow-write-html",
-    "clipboard-manager:allow-write-text"
+    "clipboard-manager:allow-write-text",
+    "udp:default"
   ]
 }

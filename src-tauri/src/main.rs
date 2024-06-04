@@ -14,8 +14,6 @@ use tauri::{
 use std::sync::RwLock;
 use tauri_plugin_appearance::{get_theme, set_theme, Theme};
 
-mod udp;
-
 #[tauri::command]
 fn open_save_dialog(dir: &str, default_file_name: &str) -> Result<String, ()> {
     let fd = native_dialog::FileDialog::new()
@@ -114,11 +112,9 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_appearance::init(ctx.config_mut()))
+        .plugin(tauri_plugin_udp::init())
         .invoke_handler(tauri::generate_handler![
             open_save_dialog,
-            udp::udp_bind,
-            udp::udp_unbind,
-            udp::udp_send
         ])
         .setup(|app| {
             let new_udp_window = MenuItemBuilder::with_id("new_udp_window", "New UDP Window")

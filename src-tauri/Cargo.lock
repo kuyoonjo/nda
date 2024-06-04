@@ -854,6 +854,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "debug_print"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f215f9b7224f49fb73256115331f677d868b34d18b65dbe4db392e6021eea90"
+
+[[package]]
 name = "deranged"
 version = "0.3.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2407,6 +2413,7 @@ dependencies = [
  "tauri-plugin-fs",
  "tauri-plugin-os",
  "tauri-plugin-shell",
+ "tauri-plugin-udp",
  "tokio",
  "uuid",
 ]
@@ -4232,6 +4239,21 @@ dependencies = [
  "serde",
  "serde_json",
  "shared_child",
+ "tauri",
+ "tauri-plugin",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "tauri-plugin-udp"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0cd1469c8c7252a6845e697c8fbfa1f186231c0b4eb023ffcbf86b7470b03817"
+dependencies = [
+ "debug_print",
+ "lazy_static",
+ "serde",
  "tauri",
  "tauri-plugin",
  "thiserror",

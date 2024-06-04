@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
   import AutoFill from "./components/AutoFill.svelte";
   import { onDestroy, onMount } from "svelte";
   import storage from "./storage";
   import { Buffer } from "buffer";
   import { getCurrent } from "@tauri-apps/api/window";
-  import { listen } from "@tauri-apps/api/event";
+  import { event } from "@tauri-apps/api";
   import IOSection from "./IOSection.svelte";
   import type { IFunc, IIOHandler, IParser } from "./IO";
+  import * as udp from '@kuyoonjo/tauri-plugin-udp';
 
   let windowId: string = "";
 
@@ -55,9 +55,15 @@
   ];
 
   async function bind() {
-    const ok = await invoke("udp_bind", { id: windowId, bindAt: local });
-    if (ok) IOHandler.addOutput(`UDP bond at ${local}`);
-    else return IOHandler.addOutput(`UDP failed to bind at ${local}`);
+    try {
+      await udp.bind(windowId, local, true);
+      IOHandler.addOutput(`UDP bond at ${local}`);
+    } catch (e) {
+      console.error(e);
+      IOHandler.addOutput(`UDP failed to bind at ${local}`);
+      return;
+    }
+
     if (!localItems.includes(local)) {
       exLocalItems.unshift(local);
       storage.set(k_exLocalItems, exLocalItems);
@@ -69,19 +75,24 @@
     bondAt = local;
   }
   async function unbind() {
-    const ok = await invoke("udp_unbind", { id: windowId });
-    if (ok) {
+    try {
+      await udp.unbind(windowId);
       IOHandler.addOutput(`UDP unbond from ${local}`);
       bondAt = "";
-    } else IOHandler.addOutput(`UDP failed to unbind from ${local}`);
+    } catch (e) {
+      console.error(e);
+      IOHandler.addOutput(`UDP failed to unbind from ${local}`);
+    }
   }
 
-  function _send(message: any) {
-    return invoke("udp_send", {
-      id: windowId,
-      target: remote,
-      message,
-    });
+  async function _send(message: any) {
+    try {
+      await udp.send(windowId, remote, message);
+      return true;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
   }
 
   async function send() {
@@ -157,10 +168,7 @@
   });
 
   async function onIOReady() {
-    unlisten = await listen<{
-      addr: string;
-      data: number[];
-    }>("udp", (e) => {
+    unlisten = await udp.listen((e) => {
       const data = parser.fn(e.payload.data);
       IOHandler.addOutput(`← [${e.payload.addr}] ${data}`);
     });
