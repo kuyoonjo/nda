@@ -15,7 +15,7 @@
   -webkit-app-region: no-drag;
 
   background: #ddd;
-  
+
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -50,6 +50,11 @@
     &:disabled {
       background: #fb9393;
     }
+  }
+
+  &.processing:disabled {
+    color: white;
+    background: #9f7f00;
   }
 
   &.link {

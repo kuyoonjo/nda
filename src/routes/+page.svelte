@@ -3,8 +3,10 @@
   import { onDestroy, onMount } from "svelte";
   import { initDarkmode, setDarkmode } from "../lib/darkmode";
   import { listen } from "@tauri-apps/api/event";
-  import Udp from "../lib/UDP.svelte";
   import { Buffer } from "buffer";
+  import Udp from "../lib/UDP.svelte";
+  import Tcp from "$lib/TCP.svelte";
+  import Mqtt from "$lib/MQTT.svelte";
   import SocketIo from "../lib/SocketIO.svelte";
   import Websocket from "../lib/Websocket.svelte";
 
@@ -12,11 +14,11 @@
 
   let unsubscribe = () => {};
 
-  let label = '';
+  let label = "";
 
   onMount(async () => {
     const win = getCurrent();
-    label = win.label.split('-')[0];
+    label = win.label.split("-")[0];
     await initDarkmode();
 
     const unlisten = await listen<string>("theme-change", (event) => {
@@ -36,6 +38,10 @@
 <main class="container">
   {#if label === "UDP"}
     <Udp />
+  {:else if label === "TCP"}
+    <Tcp />
+  {:else if label === "MQTT"}
+    <Mqtt />
   {:else if label === "SocketIO"}
     <SocketIo />
   {:else if label === "Websocket"}

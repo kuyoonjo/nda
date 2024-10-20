@@ -8,7 +8,7 @@ use tauri::{
         CheckMenuItemBuilder, MenuBuilder, MenuId, MenuItemBuilder, MenuItemKind,
         PredefinedMenuItem, SubmenuBuilder,
     },
-    AppHandle, Manager,
+    AppHandle, Emitter, Manager,
 };
 
 use std::sync::RwLock;
@@ -113,12 +113,15 @@ fn main() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_appearance::init(ctx.config_mut()))
         .plugin(tauri_plugin_udp::init())
-        .invoke_handler(tauri::generate_handler![
-            open_save_dialog,
-        ])
+        .plugin(tauri_plugin_tcp::init())
+        .plugin(tauri_plugin_mqtt::init())
+        .invoke_handler(tauri::generate_handler![open_save_dialog,])
         .setup(|app| {
             let new_udp_window = MenuItemBuilder::with_id("new_udp_window", "New UDP Window")
                 .accelerator("CmdOrCtrl+Alt+U")
+                .build(app)?;
+            let new_tcp_window = MenuItemBuilder::with_id("new_tcp_window", "New TCP Window")
+                .accelerator("CmdOrCtrl+Alt+T")
                 .build(app)?;
             let new_websocket_window =
                 MenuItemBuilder::with_id("new_websocket_window", "New Websocket Window")
@@ -128,6 +131,9 @@ fn main() {
                 MenuItemBuilder::with_id("new_socketio_window", "New SocketIO Window")
                     .accelerator("CmdOrCtrl+Alt+S")
                     .build(app)?;
+            let new_mqtt_window = MenuItemBuilder::with_id("new_mqtt_window", "New MQTT Window")
+                .accelerator("CmdOrCtrl+Alt+M")
+                .build(app)?;
 
             let theme_menu = SubmenuBuilder::with_id(app, "theme", "Theme").build()?;
             let theme_auto = CheckMenuItemBuilder::with_id("theme_auto", "Auto").build(app)?;
@@ -158,8 +164,10 @@ fn main() {
             let menu = MenuBuilder::new(app)
                 .items(&[
                     &new_udp_window,
+                    &new_tcp_window,
                     &new_websocket_window,
                     &new_socketio_window,
+                    &new_mqtt_window,
                     &separator,
                     &theme_menu,
                 ])
@@ -177,8 +185,10 @@ fn main() {
 
                     if let Some(MenuItemKind::Submenu(file_menu)) = items.get(1) {
                         file_menu.insert(&separator, 0)?;
+                        file_menu.insert(&new_mqtt_window, 0)?;
                         file_menu.insert(&new_socketio_window, 0)?;
                         file_menu.insert(&new_websocket_window, 0)?;
+                        file_menu.insert(&new_tcp_window, 0)?;
                         file_menu.insert(&new_udp_window, 0)?;
 
                         let win_menu = menu.get(tauri::menu::WINDOW_SUBMENU_ID);
@@ -235,6 +245,16 @@ fn main() {
                 } else if event.id() == new_udp_window.id() {
                     let label = "UDP-".to_string() + &new_id();
                     add_win_menu(app, &label, "Network Debug Assistant - UDP");
+                    let theme = get_theme(app);
+                    set_theme(app.clone(), theme).unwrap();
+                } else if event.id() == new_tcp_window.id() {
+                    let label = "TCP-".to_string() + &new_id();
+                    add_win_menu(app, &label, "Network Debug Assistant - TCP");
+                    let theme = get_theme(app);
+                    set_theme(app.clone(), theme).unwrap();
+                } else if event.id() == new_mqtt_window.id() {
+                    let label = "MQTT-".to_string() + &new_id();
+                    add_win_menu(app, &label, "Network Debug Assistant - MQTT");
                     let theme = get_theme(app);
                     set_theme(app.clone(), theme).unwrap();
                 } else if event.id() == new_websocket_window.id() {
