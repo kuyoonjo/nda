@@ -7,7 +7,7 @@
   import { downloadDir } from "@tauri-apps/api/path";
   import moment from "moment";
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
-  import type { IFunc, IParser } from "./IO";
+  import type { IGenerator, IParser } from "./IO";
   import { ContextMenu } from "./contextMenu";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 
@@ -21,9 +21,9 @@
   }
   let outputCache: string[] = [];
   let outputTimer: any;
-  function addOutput(str: string) {
+  function addOutput(str: string, color: 'primary' | 'error' | 'success' = 'primary') {
     outputCache.push(
-      `<span class="color-primary">[${moment().format("YYYY-MM-DD HH:mm:ss.SSS")}]</span> ${str}`,
+      `<span class="color-${color}">[${moment().format("YYYY-MM-DD HH:mm:ss.SSS")}]</span> ${str}`,
     );
     if (!outputTimer) {
       outputTimer = setTimeout(() => {
@@ -43,43 +43,47 @@
     output = [];
   }
 
-  export let defaultFuncItems: IFunc[];
-  const k_exFuncItems = id + "_exFuncItems";
-  let funcItems = [...defaultFuncItems];
-  let exFuncItems: { name: string; js: string }[] = [];
-  export let func = funcItems[0];
-  let funcArgs = func.args.map((x) => ({ k: x.name, v: x.defaultValue }));
+  export let defaultGenerators: IGenerator[];
+  const k_exGenerators = id + "_exGenerators";
+  let generators = [...defaultGenerators];
+  let exGenerators: { name: string; js: string }[] = [];
+  export let gen = generators[0];
+  let genArgs = gen.args.map((x) => ({ k: x.name, v: x.defaultValue }));
   function onFuncChange() {
-    funcArgs = func.args.map((x) => ({ k: x.name, v: x.defaultValue }));
+    genArgs = gen.args.map((x) => ({ k: x.name, v: x.defaultValue }));
     refreshInput();
   }
   function refreshInput() {
-    if (func.fn) {
-      const res = func.fn(...funcArgs.map((x) => x.v));
+    if (gen.generate) {
+      const res = gen.generate(...genArgs.map((x) => x.v));
       if (typeof res === "string") {
-        input = res;
+        input = JSON.stringify(res).slice(1, -1);
       } else {
         input = res.map((x) => x.toString(16).padStart(2, "0")).join(" ");
       }
     }
   }
-  async function parseFuncItemJs(str: string) {
+  async function parseGeneratorJs(str: string) {
     var b64 = "data:text/javascript," + str;
-    const m: (typeof defaultFuncItems)[number] = await import(b64);
+    const m: (typeof defaultGenerators)[number] = await import(b64);
     console.log(m);
-    const item: (typeof defaultFuncItems)[number] = {
+    const item: (typeof defaultGenerators)[number] = {
       name: m.name,
       args: m.args,
       input: false,
-      fn: m.fn,
-      type:
-        typeof m.fn!(...m.args.map((x) => x.defaultValue)) === "string"
+      generate: m.generate,
+      type: (() => {
+        const v = m.generate!(...m.args.map((x) => x.defaultValue));
+        return typeof v === "string"
           ? "string"
-          : "binary",
+          : Array.isArray(v)
+            ? "octets"
+            : "object";
+      })(),
     };
     return item;
   }
-  async function importFuncItem() {
+  async function importGenerator() {
     const p = await dialog.open({
       filters: [
         {
@@ -89,29 +93,29 @@
       ],
     });
     if (p) {
-      const js = await readTextFile(p.path);
-      const m = await parseFuncItemJs(js);
-      let i = funcItems.findIndex((x) => x.name === m.name);
-      if (~i) funcItems[i] = m;
-      else funcItems.push(m);
-      funcItems = funcItems;
-      i = exFuncItems.findIndex((x) => x.name === m.name);
-      if (~i) exFuncItems[i] = { name: m.name, js };
-      else exFuncItems.push({ name: m.name, js });
-      storage.set(k_exFuncItems, exFuncItems);
-      func = m;
+      const js = await readTextFile(p);
+      const m = await parseGeneratorJs(js);
+      let i = generators.findIndex((x) => x.name === m.name);
+      if (~i) generators[i] = m;
+      else generators.push(m);
+      generators = generators;
+      i = exGenerators.findIndex((x) => x.name === m.name);
+      if (~i) exGenerators[i] = { name: m.name, js };
+      else exGenerators.push({ name: m.name, js });
+      storage.set(k_exGenerators, exGenerators);
+      gen = m;
       onFuncChange();
     }
   }
-  async function exportFuncItem() {
+  async function exportGenerator() {
     try {
       const filePath = (await invoke("open_save_dialog", {
         dir: await downloadDir(),
-        defaultFileName: func.name.replaceAll(" ", "_") + ".js",
+        defaultFileName: gen.name.replaceAll(" ", "_") + ".js",
       })) as string;
       console.log("filePath", filePath);
-      console.log(func, exFuncItems);
-      const ex = exFuncItems.find((x) => x.name === func.name);
+      console.log(gen, exGenerators);
+      const ex = exGenerators.find((x) => x.name === gen.name);
       if (ex) {
         console.log("writeTextFile", filePath);
         await writeTextFile(filePath, ex.js);
@@ -120,44 +124,44 @@
       console.error(e);
     }
   }
-  async function deleteFuncItem() {
-    exFuncItems = storage.get<typeof exFuncItems>(k_exFuncItems) || [];
-    let i = exFuncItems.findIndex((x) => x.name === func.name);
+  async function deleteGenerator() {
+    exGenerators = storage.get<typeof exGenerators>(k_exGenerators) || [];
+    let i = exGenerators.findIndex((x) => x.name === gen.name);
     if (~i) {
-      exFuncItems.splice(i, 1);
-      storage.set(k_exFuncItems, exFuncItems);
+      exGenerators.splice(i, 1);
+      storage.set(k_exGenerators, exGenerators);
     }
-    i = funcItems.indexOf(func);
+    i = generators.indexOf(gen);
     if (~i) {
-      funcItems.splice(i, 1);
-      func = funcItems[0];
+      generators.splice(i, 1);
+      gen = generators[0];
     }
   }
-  async function loadExFuncItems() {
-    exFuncItems = storage.get<typeof exFuncItems>(k_exFuncItems) || [];
-    for (const item of exFuncItems) {
-      const m = await parseFuncItemJs(item.js);
-      funcItems.push(m);
-      funcItems = funcItems;
+  async function loadExGenerators() {
+    exGenerators = storage.get<typeof exGenerators>(k_exGenerators) || [];
+    for (const item of exGenerators) {
+      const m = await parseGeneratorJs(item.js);
+      generators.push(m);
+      generators = generators;
     }
   }
 
-  export let defaultParserItems: IParser[];
-  const k_exParserItems = id + "_exParserItems";
-  let parserItems = [...defaultParserItems];
-  let exParserItems: { name: string; js: string }[] = [];
-  export let parser = parserItems[0];
-  async function parseParserItemJs(str: string) {
+  export let defaultParsers: IParser[];
+  const k_exParsers = id + "_exParsers";
+  let parsers = [...defaultParsers];
+  let exParsers: { name: string; js: string }[] = [];
+  export let parser = parsers[0];
+  async function parseParserJs(str: string) {
     var b64 = "data:text/javascript," + str;
-    const m: (typeof defaultParserItems)[number] = await import(b64);
+    const m: (typeof defaultParsers)[number] = await import(b64);
     const item: typeof m = {
       name: m.name,
-      fn: m.fn,
+      parse: m.parse,
       custom: true,
     };
     return item;
   }
-  async function importParserItem() {
+  async function importParser() {
     const p = await dialog.open({
       filters: [
         {
@@ -167,26 +171,26 @@
       ],
     });
     if (p) {
-      const js = await readTextFile(p.path);
-      const m = await parseParserItemJs(js);
-      let i = parserItems.findIndex((x) => x.name === m.name);
-      if (~i) parserItems[i] = m;
-      else parserItems.push(m);
-      parserItems = parserItems;
-      i = exParserItems.findIndex((x) => x.name === m.name);
-      if (~i) exParserItems[i] = { name: m.name, js };
-      else exParserItems.push({ name: m.name, js });
-      storage.set(k_exParserItems, exParserItems);
+      const js = await readTextFile(p);
+      const m = await parseParserJs(js);
+      let i = parsers.findIndex((x) => x.name === m.name);
+      if (~i) parsers[i] = m;
+      else parsers.push(m);
+      parsers = parsers;
+      i = exParsers.findIndex((x) => x.name === m.name);
+      if (~i) exParsers[i] = { name: m.name, js };
+      else exParsers.push({ name: m.name, js });
+      storage.set(k_exParsers, exParsers);
       parser = m;
     }
   }
-  async function exportParserItem() {
+  async function exportParser() {
     try {
       const filePath = (await invoke("open_save_dialog", {
         dir: await downloadDir(),
         defaultFileName: parser.name.replaceAll(" ", "_") + ".js",
       })) as string;
-      const ex = exParserItems.find((x) => x.name === parser.name);
+      const ex = exParsers.find((x) => x.name === parser.name);
       if (ex) {
         console.log("writeTextFile", filePath);
         await writeTextFile(filePath, ex.js);
@@ -195,25 +199,25 @@
       console.error(e);
     }
   }
-  async function deleteParserItem() {
-    exParserItems = storage.get<typeof exParserItems>(k_exParserItems) || [];
-    let i = exParserItems.findIndex((x) => x.name === parser.name);
+  async function deleteParser() {
+    exParsers = storage.get<typeof exParsers>(k_exParsers) || [];
+    let i = exParsers.findIndex((x) => x.name === parser.name);
     if (~i) {
-      exParserItems.splice(i, 1);
-      storage.set(k_exParserItems, exParserItems);
+      exParsers.splice(i, 1);
+      storage.set(k_exParsers, exParsers);
     }
-    i = parserItems.indexOf(parser);
+    i = parsers.indexOf(parser);
     if (~i) {
-      parserItems.splice(i, 1);
-      parser = parserItems[0];
+      parsers.splice(i, 1);
+      parser = parsers[0];
     }
   }
-  async function loadExParserItems() {
-    exParserItems = storage.get<typeof exFuncItems>(k_exParserItems) || [];
-    for (const item of exParserItems) {
-      const m = await parseParserItemJs(item.js);
-      parserItems.push(m);
-      parserItems = parserItems;
+  async function loadExParsers() {
+    exParsers = storage.get<typeof exGenerators>(k_exParsers) || [];
+    for (const item of exParsers) {
+      const m = await parseParserJs(item.js);
+      parsers.push(m);
+      parsers = parsers;
     }
   }
 
@@ -222,7 +226,7 @@
     {
       text: "Copy Records",
       onclick() {
-        console.log(outputEl.innerText)
+        console.log(outputEl.innerText);
         writeText(outputEl.innerText);
       },
     },
@@ -234,8 +238,8 @@
   const ed = createEventDispatcher<{ ready: void }>();
 
   onMount(async () => {
-    await loadExFuncItems();
-    await loadExParserItems();
+    await loadExGenerators();
+    await loadExParsers();
     ed("ready");
   });
 
@@ -250,47 +254,51 @@
 
 <div style="display: flex; align-items: center;">
   <!-- svelte-ignore a11y-label-has-associated-control -->
-  <label>Function</label>
+  <label>Generator</label>
   <Select
-    bind:value={func}
-    items={funcItems}
+    bind:value={gen}
+    items={generators}
     key="name"
     on:change={onFuncChange}
   />
-  <button class="btn primary" on:click={importFuncItem}>Import</button>
-  {#if !func.input}
-    <button class="btn primary" on:click={exportFuncItem}>Export</button>
-    <button class="btn error" on:click={deleteFuncItem}>Delete</button>
+  <button class="btn primary" on:click={importGenerator}>Import</button>
+  {#if !gen.input}
+    <button class="btn primary" on:click={exportGenerator}>Export</button>
+    <button class="btn error" on:click={deleteGenerator}>Delete</button>
   {/if}
 </div>
-{#if funcArgs.length}
-  <div style="display: flex; align-items: center;margin: 8px 0 0;">
-    {#each funcArgs as arg}
-      <!-- svelte-ignore a11y-label-has-associated-control -->
-      <label>{arg.k}</label>
-      <input
-        style="margin-right: 12px"
-        type="text"
-        bind:value={arg.v}
-        on:input={refreshInput}
-      />
+{#if genArgs.length}
+  <div
+    style="display: flex; align-items: center;margin: 8px 0 0; flex-wrap: wrap; row-gap: 6px;"
+  >
+    {#each genArgs as arg}
+      <div style="display: flex; align-items: center;">
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label style="flex-shrink: 0;">{arg.k}</label>
+        <input
+          style="margin-right: 12px"
+          type="text"
+          bind:value={arg.v}
+          on:input={refreshInput}
+        />
+      </div>
     {/each}
   </div>
 {/if}
 <textarea
   style="margin: 8px 0 0; flex: 1 1 0;"
   bind:value={input}
-  disabled={!func.input}
+  disabled={!gen.input}
 ></textarea>
 <hr />
 <div style="display: flex; align-items: center;">
   <!-- svelte-ignore a11y-label-has-associated-control -->
   <label>Parser</label>
-  <Select bind:value={parser} items={parserItems} key="name" />
-  <button class="btn primary" on:click={importParserItem}>Import</button>
+  <Select bind:value={parser} items={parsers} key="name" />
+  <button class="btn primary" on:click={importParser}>Import</button>
   {#if parser.custom}
-    <button class="btn primary" on:click={exportParserItem}>Export</button>
-    <button class="btn error" on:click={deleteParserItem}>Delete</button>
+    <button class="btn primary" on:click={exportParser}>Export</button>
+    <button class="btn error" on:click={deleteParser}>Delete</button>
   {/if}
   <!-- svelte-ignore a11y-label-has-associated-control -->
   <label style="margin-left: 16px">Max # of Records</label>

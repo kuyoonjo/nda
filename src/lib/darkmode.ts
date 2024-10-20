@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { getTheme, Theme } from '@kuyoonjo/tauri-plugin-appearance';
-import { getCurrent } from '@tauri-apps/api/webview';
+import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { listen } from '@tauri-apps/api/event';
 
 export const darkmode = writable<'light' | 'dark'>('light');
@@ -8,7 +8,7 @@ export const darkmode = writable<'light' | 'dark'>('light');
 export async function initDarkmode() {
   let theme = await getTheme();
   console.log('theme', theme);
-  const win = getCurrent();
+  const win = getCurrentWebview();
   if (theme === Theme.Auto) {
     let t = await win.window.theme() || 'light';
     theme = t === 'light' ? Theme.Light : Theme.Dark;
@@ -30,7 +30,7 @@ export async function initDarkmode() {
 
 export async function setDarkmode(theme: 'auto' | 'light' | 'dark') {
   if (theme === 'auto') {
-    let t = await getCurrent().window.theme() || 'light';
+    let t = await getCurrentWebview().window.theme() || 'light';
     theme = t === 'light' ? Theme.Light : Theme.Dark;
   }
   darkmode.set(theme);

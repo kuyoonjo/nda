@@ -3,10 +3,10 @@
   import { onDestroy, onMount } from "svelte";
   import storage from "./storage";
   import { Buffer } from "buffer";
-  import { getCurrent } from "@tauri-apps/api/window";
+  import { getCurrentWindow } from "@tauri-apps/api/window";
   import { event } from "@tauri-apps/api";
   import IOSection from "./IOSection.svelte";
-  import type { IFunc, IIOHandler, IParser } from "./IO";
+  import { binaryGenerator, binaryParser, packInput, stringGenerator, stringParser, type IGenerator, type IIOHandler, type IParser } from "./IO";
   import * as udp from '@kuyoonjo/tauri-plugin-udp';
 
   let windowId: string = "";
@@ -24,43 +24,21 @@
   let remoteItems: string[] = [];
   let remote = "";
 
-  let func: IFunc;
+  let gen: IGenerator;
   let parser: IParser;
   let input: string;
   let output: string[];
   let IOHandler: IIOHandler;
-  const defaultFuncItems: IFunc[] = [
-    {
-      name: "string",
-      input: true,
-      args: [],
-      type: "string",
-    },
-    {
-      name: "binary",
-      input: true,
-      args: [],
-      type: "binary",
-    },
-  ];
-  const defaultParserItems: IParser<number[]>[] = [
-    {
-      name: "string",
-      fn: (buf) => JSON.stringify(Buffer.from(buf).toString()),
-    },
-    {
-      name: "binary",
-      fn: (buf) => buf.map((x) => x.toString(16).padStart(2, "0")).join(" "),
-    },
-  ];
+  const defaultGenerators: IGenerator[] = [stringGenerator, binaryGenerator];
+  const defaultParsers: IParser[] = [stringParser, binaryParser];
 
   async function bind() {
     try {
       await udp.bind(windowId, local, true);
-      IOHandler.addOutput(`UDP bond at ${local}`);
+      IOHandler.addOutput(`UDP bond at ${local}`, 'success');
     } catch (e) {
       console.error(e);
-      IOHandler.addOutput(`UDP failed to bind at ${local}`);
+      IOHandler.addOutput(`UDP failed to bind at ${local}`, 'error');
       return;
     }
 
@@ -77,11 +55,11 @@
   async function unbind() {
     try {
       await udp.unbind(windowId);
-      IOHandler.addOutput(`UDP unbond from ${local}`);
+      IOHandler.addOutput(`UDP unbond from ${local}`, 'success');
       bondAt = "";
     } catch (e) {
       console.error(e);
-      IOHandler.addOutput(`UDP failed to unbind from ${local}`);
+      IOHandler.addOutput(`UDP failed to unbind from ${local}`, 'error');
     }
   }
 
@@ -96,26 +74,10 @@
   }
 
   async function send() {
-    const message =
-      func.type === "binary"
-        ? Array.from(
-            Buffer.from(
-              input
-                .split(/\s+/)
-                .map((x) => (x.length % 2 ? "0" + x : x))
-                .join(""),
-              "hex",
-            ),
-          )
-        : Array.from(Buffer.from(input));
-    console.log(func, message);
+    const { message, data } = await packInput(gen, input);
     const ok = await _send(message);
-    const data =
-      func.type === "binary"
-        ? message.map((x) => x.toString(16).padStart(2, "0")).join(" ")
-        : input;
-    if (ok) IOHandler.addOutput(`→ [${remote}] ${data} → OK`);
-    else IOHandler.addOutput(`→ [${remote}] ${data} → FAIL`);
+    if (ok) IOHandler.addOutput(`→ [${remote}] ${data}`, 'success');
+    else IOHandler.addOutput(`→ [${remote}] ${data}`, 'error');
     if (!remoteItems.includes(remote)) {
       exRemoteItems.unshift(remote);
       storage.set(k_exRemoteItems, exRemoteItems);
@@ -154,7 +116,7 @@
 
   let unlisten = () => {};
   onMount(async () => {
-    windowId = getCurrent().label;
+    windowId = getCurrentWindow().label;
     exLocalItems = storage.get(k_exLocalItems) || [];
     localItems = [...exLocalItems, ...defaultLocalItems];
     local = defaultLocalItems[0];
@@ -169,7 +131,7 @@
 
   async function onIOReady() {
     unlisten = await udp.listen((e) => {
-      const data = parser.fn(e.payload.data);
+      const data = parser.parse(e.payload.data);
       IOHandler.addOutput(`← [${e.payload.addr}] ${data}`);
     });
   }
@@ -218,12 +180,12 @@
     id="udp"
     bind:input
     bind:output
-    bind:func
+    bind:gen
     bind:parser
     bind:IOHandler
     on:ready={onIOReady}
-    {defaultFuncItems}
-    {defaultParserItems}
+    {defaultGenerators}
+    {defaultParsers}
   />
 </main>
 

@@ -3,10 +3,10 @@
   import { onDestroy, onMount } from "svelte";
   import storage from "./storage";
   import { Buffer } from "buffer";
-  import { getCurrent } from "@tauri-apps/api/window";
+  import { getCurrentWindow } from "@tauri-apps/api/window";
   import { listen } from "@tauri-apps/api/event";
   import IOSection from "./IOSection.svelte";
-  import type { IFunc, IIOHandler, IParser } from "./IO";
+  import { binaryGenerator, objectGenerator, packInput, stringGenerator, type IGenerator, type IIOHandler, type IParser } from "./IO";
   import sio, { Socket } from "socket.io-client";
 
   let windowId: string = "";
@@ -17,35 +17,16 @@
   let remoteItems: string[] = [];
   let remote = "";
 
-  let func: IFunc;
+  let gen: IGenerator;
   let parser: IParser;
   let input: string;
   let output: string[];
   let IOHandler: IIOHandler;
-  const defaultFuncItems: IFunc[] = [
-    {
-      name: "string",
-      input: true,
-      args: [],
-      type: "string",
-    },
-    {
-      name: "binary",
-      input: true,
-      args: [],
-      type: "binary",
-    },
-    {
-      name: "object",
-      input: true,
-      args: [],
-      type: "object",
-    },
-  ];
-  const defaultParserItems: IParser[] = [
+  const defaultGenerators: IGenerator[] = [stringGenerator, binaryGenerator, objectGenerator];
+  const defaultParsers: IParser[] = [
     {
       name: "default",
-      fn: (buf) => {
+      parse: (buf) => {
         if (buf instanceof ArrayBuffer) {
           return Array.from(Buffer.from(buf))
             .map((x) => x.toString(16).padStart(2, "0"))
@@ -64,11 +45,11 @@
     });
     s.on("connect", () => {
       io = s;
-      IOHandler.addOutput(`SocketIO connected to ${remote}`);
+      IOHandler.addOutput(`SocketIO connected to ${remote}`, 'success');
     });
     s.on("disconnect", () => {
       io = undefined;
-      IOHandler.addOutput(`SocketIO disconnected`);
+      IOHandler.addOutput(`SocketIO disconnected`, 'error');
     });
     if (!remoteItems.includes(remote)) {
       exRemoteItems.unshift(remote);
@@ -94,7 +75,7 @@
     subscribedTopic = topic;
     if (subscribedTopic) {
       io!.on(subscribedTopic, (v) => {
-        const data = parser.fn(v);
+        const data = parser.parse(v);
         IOHandler.addOutput(`← [${subscribedTopic}] ${data}`);
       });
     }
@@ -106,35 +87,10 @@
 
   async function send() {
     if (!input) return;
-    let message: any;
-    let data: any;
-    switch (func.type) {
-      case "binary":
-        message = Buffer.from(
-          input
-            .split(/\s+/)
-            .map((x) => (x.length % 2 ? "0" + x : x))
-            .join(""),
-          "hex",
-        );
-        data = Array.from(message as Buffer)
-          .map((x) => x.toString(16).padStart(2, "0"))
-          .join(" ");
-        break;
-      case "string":
-        message = input;
-        data = input;
-        break;
-      case "object":
-        var b64 = "data:text/javascript,export const value = " + input;
-        const m = await import(b64);
-        message = m.value;
-        data = input;
-        break;
-    }
+    const { message, data } = await packInput(gen, input);
     const ok = await _send(message);
-    if (ok) IOHandler.addOutput(`→ [${topic}] ${data} → OK`);
-    else IOHandler.addOutput(`→ [${topic}] ${data} → FAIL`);
+    if (ok) IOHandler.addOutput(`→ [${topic}] ${data}`, 'success');
+    else IOHandler.addOutput(`→ [${topic}] ${data}`, 'error');
   }
 
   function clearRemoteItem() {
@@ -153,7 +109,7 @@
 
   let unlisten = () => {};
   onMount(async () => {
-    windowId = getCurrent().label;
+    windowId = getCurrentWindow().label;
     exRemoteItems = storage.get(k_exRemoteItems) || [];
     remoteItems = [...exRemoteItems, ...defaultRemoteItems];
     remote = defaultRemoteItems[0];
@@ -163,15 +119,7 @@
     unlisten();
   });
 
-  async function onIOReady() {
-    unlisten = await listen<{
-      addr: string;
-      data: number[];
-    }>("udp", (e) => {
-      const data = parser.fn(e.payload.data);
-      IOHandler.addOutput(`← [${e.payload.addr}] ${data}`);
-    });
-  }
+  async function onIOReady() {}
 </script>
 
 <main>
@@ -207,12 +155,12 @@
     id="socketio"
     bind:input
     bind:output
-    bind:func
+    bind:gen
     bind:parser
     bind:IOHandler
     on:ready={onIOReady}
-    {defaultFuncItems}
-    {defaultParserItems}
+    {defaultGenerators}
+    {defaultParsers}
   />
 </main>
 

@@ -3,10 +3,10 @@
   import { onDestroy, onMount } from "svelte";
   import storage from "./storage";
   import { Buffer } from "buffer";
-  import { getCurrent } from "@tauri-apps/api/window";
+  import { getCurrentWindow } from "@tauri-apps/api/window";
   import { event } from "@tauri-apps/api";
   import IOSection from "./IOSection.svelte";
-  import type { IFunc, IIOHandler, IParser } from "./IO";
+  import { binaryGenerator, binaryParser, packInput, stringGenerator, stringParser, type IGenerator, type IIOHandler, type IParser } from "./IO";
   import * as mqtt from "@kuyoonjo/tauri-plugin-mqtt";
 
   let windowId: string = "";
@@ -34,35 +34,13 @@
   let subTopicItems: string[] = [];
   let subTopic = "";
 
-  let func: IFunc;
+  let gen: IGenerator;
   let parser: IParser;
   let input: string;
   let output: string[];
   let IOHandler: IIOHandler;
-  const defaultFuncItems: IFunc[] = [
-    {
-      name: "string",
-      input: true,
-      args: [],
-      type: "string",
-    },
-    {
-      name: "binary",
-      input: true,
-      args: [],
-      type: "binary",
-    },
-  ];
-  const defaultParserItems: IParser<number[]>[] = [
-    {
-      name: "string",
-      fn: (buf) => JSON.stringify(Buffer.from(buf).toString()),
-    },
-    {
-      name: "binary",
-      fn: (buf) => buf.map((x) => x.toString(16).padStart(2, "0")).join(" "),
-    },
-  ];
+  const defaultGenerators: IGenerator[] = [stringGenerator, binaryGenerator];
+  const defaultParsers: IParser[] = [stringParser, binaryParser];
 
   async function connect() {
     try {
@@ -74,7 +52,7 @@
       connectStatus = "connecting";
     } catch (e) {
       console.error(e);
-      IOHandler.addOutput(`mqtt failed to connect to ${uri}`);
+      IOHandler.addOutput(`mqtt failed to connect to ${uri}`, 'error');
       return;
     }
 
@@ -93,7 +71,7 @@
       connectStatus = "disconnected";
     } catch (e) {
       console.error(e);
-      IOHandler.addOutput(`mqtt failed to disconnect from ${uri}`);
+      IOHandler.addOutput(`mqtt failed to disconnect from ${uri}`, 'error');
     }
   }
 
@@ -108,26 +86,10 @@
   }
 
   async function publish() {
-    const message =
-      func.type === "binary"
-        ? Array.from(
-            Buffer.from(
-              input
-                .split(/\s+/)
-                .map((x) => (x.length % 2 ? "0" + x : x))
-                .join(""),
-              "hex",
-            ),
-          )
-        : Array.from(Buffer.from(input));
-    console.log(func, message);
+    const { message, data } = await packInput(gen, input);
     const ok = await _publish(message);
-    const data =
-      func.type === "binary"
-        ? message.map((x) => x.toString(16).padStart(2, "0")).join(" ")
-        : input;
-    if (ok) IOHandler.addOutput(`→ [Publish ${topic}] ${data} → OK`);
-    else IOHandler.addOutput(`→ [Publish ${topic}] ${data} → FAIL`);
+    if (ok) IOHandler.addOutput(`→ [Publish ${topic}] ${data}`, 'success');
+    else IOHandler.addOutput(`→ [Publish ${topic}] ${data}`, 'error');
     if (!topicItems.includes(topic)) {
       exTopicItems.unshift(topic);
       storage.set(k_exTopicItems, exTopicItems);
@@ -141,10 +103,11 @@
   async function subscribe() {
     try {
       await mqtt.subscribe(windowId, topic, 0);
-      IOHandler.addOutput(`→ [Subscribe ${topic}] → OK`);
+      IOHandler.addOutput(`→ [Subscribe ${topic}]`, 'success');
       return true;
     } catch (e) {
       console.error(e);
+      IOHandler.addOutput(`→ [Subscribe ${topic}]`, 'error');
       return false;
     }
   }
@@ -191,7 +154,7 @@
 
   let unlisten = () => {};
   onMount(async () => {
-    windowId = getCurrent().label;
+    windowId = getCurrentWindow().label;
     exUriItems = storage.get(k_exUriItems) || [];
     uriItems = [...exUriItems, ...defaultUriItems];
     uri = defaultUriItems[0];
@@ -210,13 +173,13 @@
   async function onIOReady() {
     unlisten = await mqtt.listen((e) => {
       if (e.payload.event.connect) {
-        IOHandler.addOutput(`MQTT connected to ${uri}`);
+        IOHandler.addOutput(`MQTT connected to ${uri}`, 'success');
         connectStatus = "connected";
       } else if (e.payload.event.disconnect) {
-        IOHandler.addOutput(`MQTT disconnected from ${uri}`);
+        IOHandler.addOutput(`MQTT disconnected from ${uri}`, 'error');
         connectStatus = "disconnected";
       } else if (e.payload.event.message) {
-        const data = parser.fn(e.payload.event.message.payload);
+        const data = parser.parse(e.payload.event.message.payload);
         IOHandler.addOutput(`← [${e.payload.event.message.topic}] ${data}`);
       }
     });
@@ -284,12 +247,12 @@
     id="mqtt"
     bind:input
     bind:output
-    bind:func
+    bind:gen
     bind:parser
     bind:IOHandler
     on:ready={onIOReady}
-    {defaultFuncItems}
-    {defaultParserItems}
+    {defaultGenerators}
+    {defaultParsers}
   />
 </main>
 

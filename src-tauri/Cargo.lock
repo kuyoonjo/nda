@@ -4780,9 +4780,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-appearance"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98543ed564a7681732ccbd5519feb5711c721355a3c774e818237b828c3b3b0c"
+checksum = "f54777de022bff30832a5656cc97b0dda7e7c3c658acd307955220826cb6befc"
 dependencies = [
  "cocoa 0.25.0",
  "futures-lite 2.3.0",

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getCurrent } from "@tauri-apps/api/window";
+  import { getCurrentWindow } from "@tauri-apps/api/window";
   import { onDestroy, onMount } from "svelte";
   import { initDarkmode, setDarkmode } from "../lib/darkmode";
   import { listen } from "@tauri-apps/api/event";
@@ -17,7 +17,7 @@
   let label = "";
 
   onMount(async () => {
-    const win = getCurrent();
+    const win = getCurrentWindow();
     label = win.label.split("-")[0];
     await initDarkmode();
 

@@ -3,10 +3,9 @@
   import { onDestroy, onMount } from "svelte";
   import storage from "./storage";
   import { Buffer } from "buffer";
-  import { getCurrent } from "@tauri-apps/api/window";
-  import { event } from "@tauri-apps/api";
+  import { getCurrentWindow } from "@tauri-apps/api/window";
   import IOSection from "./IOSection.svelte";
-  import type { IFunc, IIOHandler, IParser } from "./IO";
+  import { binaryGenerator, binaryParser, packInput, stringGenerator, stringParser, type IGenerator, type IIOHandler, type IParser } from "./IO";
   import * as tcp from "@kuyoonjo/tauri-plugin-tcp";
 
   let windowId: string = "";
@@ -20,42 +19,20 @@
   let remoteItems: string[] = [];
   let remote = "";
 
-  let func: IFunc;
+  let gen: IGenerator;
   let parser: IParser;
   let input: string;
   let output: string[];
   let IOHandler: IIOHandler;
-  const defaultFuncItems: IFunc[] = [
-    {
-      name: "string",
-      input: true,
-      args: [],
-      type: "string",
-    },
-    {
-      name: "binary",
-      input: true,
-      args: [],
-      type: "binary",
-    },
-  ];
-  const defaultParserItems: IParser<number[]>[] = [
-    {
-      name: "string",
-      fn: (buf) => JSON.stringify(Buffer.from(buf).toString()),
-    },
-    {
-      name: "binary",
-      fn: (buf) => buf.map((x) => x.toString(16).padStart(2, "0")).join(" "),
-    },
-  ];
+  const defaultGenerators: IGenerator[] = [stringGenerator, binaryGenerator];
+  const defaultParsers: IParser[] = [stringParser, binaryParser];
 
   async function connect() {
     try {
       await tcp.connect(windowId, remote);
     } catch (e) {
       console.error(e);
-      IOHandler.addOutput(`TCP failed to connect to ${remote}`);
+      IOHandler.addOutput(`TCP failed to connect to ${remote}`, 'error');
       return;
     }
 
@@ -71,11 +48,11 @@
   async function disconnect() {
     try {
       await tcp.disconnect(windowId);
-      IOHandler.addOutput(`TCP disconnected from ${remote}`);
+      IOHandler.addOutput(`TCP disconnected from ${remote}`, 'success');
       connectStatus = "disconnected";
     } catch (e) {
       console.error(e);
-      IOHandler.addOutput(`TCP failed to disconnected from ${remote}`);
+      IOHandler.addOutput(`TCP failed to disconnected from ${remote}`, 'error');
     }
   }
 
@@ -90,26 +67,10 @@
   }
 
   async function send() {
-    const message =
-      func.type === "binary"
-        ? Array.from(
-            Buffer.from(
-              input
-                .split(/\s+/)
-                .map((x) => (x.length % 2 ? "0" + x : x))
-                .join(""),
-              "hex",
-            ),
-          )
-        : Array.from(Buffer.from(input));
-    console.log(func, message);
+    const { message, data } = await packInput(gen, input);
     const ok = await _send(message);
-    const data =
-      func.type === "binary"
-        ? message.map((x) => x.toString(16).padStart(2, "0")).join(" ")
-        : input;
-    if (ok) IOHandler.addOutput(`→ [${remote}] ${data} → OK`);
-    else IOHandler.addOutput(`→ [${remote}] ${data} → FAIL`);
+    if (ok) IOHandler.addOutput(`→ [${remote}] ${data}`, 'success');
+    else IOHandler.addOutput(`→ [${remote}] ${data}`, 'error');
   }
 
   function clearRemoteItem() {
@@ -128,7 +89,7 @@
 
   let unlisten = () => {};
   onMount(async () => {
-    windowId = getCurrent().label;
+    windowId = getCurrentWindow().label;
     exRemoteItems = storage.get(k_exRemoteItems) || [];
     remoteItems = [...exRemoteItems, ...defaultRemoteItems];
     remote = defaultRemoteItems[0];
@@ -141,13 +102,13 @@
   async function onIOReady() {
     unlisten = await tcp.listen((e) => {
       if (e.payload.event.connect) {
-        IOHandler.addOutput(`TCP connected to ${remote}`);
+        IOHandler.addOutput(`TCP connected to ${remote}`, 'success');
         connectStatus = "connected";
       } else if (e.payload.event.disconnect) {
-        IOHandler.addOutput(`TCP disconnected from ${remote}`);
+        IOHandler.addOutput(`TCP disconnected from ${remote}`, 'error');
         connectStatus = "disconnected";
       } else if (e.payload.event.message) {
-        const data = parser.fn(e.payload.event.message.data);
+        const data = parser.parse(e.payload.event.message.data);
         IOHandler.addOutput(`← [${e.payload.event.message.addr}] ${data}`);
       }
     });
@@ -183,12 +144,12 @@
     id="tcp"
     bind:input
     bind:output
-    bind:func
+    bind:gen
     bind:parser
     bind:IOHandler
     on:ready={onIOReady}
-    {defaultFuncItems}
-    {defaultParserItems}
+    {defaultGenerators}
+    {defaultParsers}
   />
 </main>
 

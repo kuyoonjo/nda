@@ -54,7 +54,15 @@
 
   &.processing:disabled {
     color: white;
-    background: #9f7f00;
+    background: coral;
+  }
+
+  &.warn {
+    background: var.$color_warn;
+  }
+
+  &.success {
+    background: var.$color_success;
   }
 
   &.link {
