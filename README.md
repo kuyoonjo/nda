@@ -27,16 +27,16 @@
 </div>
 
 ## Screenshot
-![](./screenshot-udp.png)
-![](./screenshot-tcp.png)
-![](./screenshot-websocket.png)
-![](./screenshot-socketio.png)
-![](./screenshot-mqtt.png)
+![](./screenshots/udp.png)
+![](./screenshots/tcp.png)
+![](./screenshots/ws.png)
+![](./screenshots/sio.png)
+![](./screenshots/mqtt.png)
 
 ## Scripting Support
 This application supports scripting with javascript to customize the input fields and the output.
 
-![](./screenshot-scripting.png)
+![](./screenshots/scripting.png)
 
 The .js file is imported as a module. The struct of the module is as follows:
 > Input Script

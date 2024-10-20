@@ -118,21 +118,21 @@ fn main() {
         .invoke_handler(tauri::generate_handler![open_save_dialog,])
         .setup(|app| {
             let new_udp_window = MenuItemBuilder::with_id("new_udp_window", "New UDP Window")
-                .accelerator("CmdOrCtrl+Alt+U")
+                .accelerator("Shift+Alt+U")
                 .build(app)?;
             let new_tcp_window = MenuItemBuilder::with_id("new_tcp_window", "New TCP Window")
-                .accelerator("CmdOrCtrl+Alt+T")
+                .accelerator("Shift+Alt+T")
                 .build(app)?;
             let new_websocket_window =
                 MenuItemBuilder::with_id("new_websocket_window", "New Websocket Window")
-                    .accelerator("CmdOrCtrl+Alt+W")
+                    .accelerator("Shift+Alt+W")
                     .build(app)?;
             let new_socketio_window =
                 MenuItemBuilder::with_id("new_socketio_window", "New SocketIO Window")
-                    .accelerator("CmdOrCtrl+Alt+S")
+                    .accelerator("Shift+Alt+S")
                     .build(app)?;
             let new_mqtt_window = MenuItemBuilder::with_id("new_mqtt_window", "New MQTT Window")
-                .accelerator("CmdOrCtrl+Alt+M")
+                .accelerator("Shift+Alt+M")
                 .build(app)?;
 
             let theme_menu = SubmenuBuilder::with_id(app, "theme", "Theme").build()?;
