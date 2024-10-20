@@ -2,11 +2,13 @@
 <img height=150 src="src-tauri/icons/icon.png" />
 </div>
 
-<p align="center"><span><b>Network Debug Assistant</b> - UDP, Websocket, SocketIO</span></p>
+<p align="center"><span><b>Network Debug Assistant</b> - UDP, TCP, Websocket, SocketIO, MQTT</span></p>
 
 <div align="center">
 
-[![Windows Support](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/kuyoonjo/nda/releases)[![Mac Support](https://img.shields.io/badge/MACOS-adb8c5?style=for-the-badge&logo=macos&logoColor=white)](https://github.com/kuyoonjo/nda/releases)
+[![Windows Support](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/kuyoonjo/nda/releases)
+ [![Ubuntu Support](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/kuyoonjo/nda/releases) 
+[![Mac Support](https://img.shields.io/badge/MACOS-adb8c5?style=for-the-badge&logo=macos&logoColor=white)](https://github.com/kuyoonjo/nda/releases)
 
 </div>
 
@@ -30,6 +32,33 @@
 ![](./screenshot-websocket.png)
 ![](./screenshot-socketio.png)
 ![](./screenshot-mqtt.png)
+
+## Scripting Support
+This application supports scripting with javascript to customize the input fields and the output.
+
+![](./screenshot-scripting.png)
+
+The .js file is imported as a module. The struct of the module is as follows:
+> Input Script
+```typescript
+export interface IGenerator {
+  name: string;
+  args: {
+    name: string;
+    defaultValue: string;
+  }[];
+  generate: (...args: string[]) => string | number[] | object;
+}
+```
+> Output Script
+```typescript
+export interface IParser {
+  name: string;
+  parse: (buf: number[]) => string;
+}
+```
+
+See [examples](./js) for more details.
 
 ## Installation
 
