@@ -19,7 +19,7 @@ export interface IIOHandler {
   addOutput: (str: string, color?: 'primary' | 'error' | 'success') => void;
 }
 
-export const stringGenerator: IGenerator = 
+export const stringGenerator: IGenerator =
 {
   name: "String",
   input: true,
@@ -27,7 +27,7 @@ export const stringGenerator: IGenerator =
   type: "string",
 };
 
-export const binaryGenerator: IGenerator = 
+export const binaryGenerator: IGenerator =
 {
   name: "Octets",
   input: true,
@@ -35,7 +35,7 @@ export const binaryGenerator: IGenerator =
   type: "octets",
 };
 
-export const objectGenerator: IGenerator = 
+export const objectGenerator: IGenerator =
 {
   name: "object",
   input: true,
@@ -62,18 +62,18 @@ export const objectParser: IParser = {
 };
 
 export async function packInput(gen: IGenerator, input: string) {
-  let message: string | Buffer;
+  let message: string | number[];
   let data: string;
   switch (gen.type) {
     case "octets":
-      message = Buffer.from(
+      message = Array.from(Buffer.from(
         input
           .split(/\s+/)
           .map((x) => (x.length % 2 ? "0" + x : x))
           .join(""),
         "hex",
-      );
-      data = Array.from(message as Buffer)
+      ));
+      data = message
         .map((x) => x.toString(16).padStart(2, "0"))
         .join(" ");
       break;
