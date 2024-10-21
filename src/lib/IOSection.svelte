@@ -10,6 +10,7 @@
   import type { IGenerator, IParser } from "./IO";
   import { ContextMenu } from "./contextMenu";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+  import { Buffer } from 'buffer';
 
   export let id: string;
   export let input = "";
@@ -64,7 +65,7 @@
     }
   }
   async function parseGeneratorJs(str: string) {
-    var b64 = "data:text/javascript," + str;
+    const b64 = "data:text/javascript;base64," + Buffer.from(str).toString("base64");
     const m: (typeof defaultGenerators)[number] = await import(b64);
     console.log(m);
     const item: (typeof defaultGenerators)[number] = {
