@@ -74,6 +74,7 @@
 
   async function send() {
     if (!input) return;
+    refreshInput();
     const { message, data } = await packInput(gen, input);
     const ok = await _send(message);
     if (ok) IOHandler.addOutput(`→ [${remote}] ${data}`, 'success');
@@ -107,6 +108,8 @@
   });
 
   async function onIOReady() {}
+  
+  let refreshInput: () => void;
 </script>
 
 <main>
@@ -136,6 +139,7 @@
 
   <IOSection
     id="websocket"
+    bind:refreshInput
     bind:input
     bind:output
     bind:gen

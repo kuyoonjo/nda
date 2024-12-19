@@ -87,6 +87,7 @@
 
   async function send() {
     if (!input) return;
+    refreshInput();
     const { message, data } = await packInput(gen, input);
     const ok = await _send(message);
     if (ok) IOHandler.addOutput(`→ [${topic}] ${data}`, 'success');
@@ -120,6 +121,8 @@
   });
 
   async function onIOReady() {}
+  
+  let refreshInput: () => void;
 </script>
 
 <main>
@@ -153,6 +156,7 @@
 
   <IOSection
     id="socketio"
+    bind:refreshInput
     bind:input
     bind:output
     bind:gen

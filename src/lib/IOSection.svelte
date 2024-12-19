@@ -54,7 +54,7 @@
     genArgs = gen.args.map((x) => ({ k: x.name, v: x.defaultValue }));
     refreshInput();
   }
-  function refreshInput() {
+  export function refreshInput() {
     if (gen.generate) {
       const res = gen.generate(...genArgs.map((x) => x.v));
       if (typeof res === "string") {

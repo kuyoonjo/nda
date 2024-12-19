@@ -74,6 +74,7 @@
   }
 
   async function send() {
+    refreshInput();
     const { message, data } = await packInput(gen, input);
     const ok = await _send(message);
     if (ok) IOHandler.addOutput(`→ [${remote}] ${data}`, 'success');
@@ -135,6 +136,8 @@
       IOHandler.addOutput(`← [${e.payload.addr}] ${data}`);
     });
   }
+  
+  let refreshInput: () => void;
 </script>
 
 <main>
@@ -178,6 +181,7 @@
 
   <IOSection
     id="udp"
+    bind:refreshInput
     bind:input
     bind:output
     bind:gen

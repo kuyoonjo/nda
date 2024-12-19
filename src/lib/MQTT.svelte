@@ -86,6 +86,7 @@
   }
 
   async function publish() {
+    refreshInput();
     const { message, data } = await packInput(gen, input);
     const ok = await _publish(message);
     if (ok) IOHandler.addOutput(`→ [Publish ${topic}] ${data}`, 'success');
@@ -184,6 +185,8 @@
       }
     });
   }
+  
+  let refreshInput: () => void;
 </script>
 
 <main>
@@ -245,6 +248,7 @@
 
   <IOSection
     id="mqtt"
+    bind:refreshInput
     bind:input
     bind:output
     bind:gen

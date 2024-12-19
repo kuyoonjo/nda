@@ -67,6 +67,7 @@
   }
 
   async function send() {
+    refreshInput();
     const { message, data } = await packInput(gen, input);
     const ok = await _send(message);
     if (ok) IOHandler.addOutput(`→ [${remote}] ${data}`, 'success');
@@ -113,6 +114,8 @@
       }
     });
   }
+
+  let refreshInput: () => void;
 </script>
 
 <main>
@@ -141,6 +144,7 @@
   <hr />
 
   <IOSection
+    bind:refreshInput
     id="tcp"
     bind:input
     bind:output
