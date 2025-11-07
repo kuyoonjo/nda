@@ -32,6 +32,7 @@
 ![](./screenshots/ws.png)
 ![](./screenshots/sio.png)
 ![](./screenshots/mqtt.png)
+![](./screenshots/serialport.png)
 
 ## Scripting Support
 This application supports scripting with javascript to customize the input fields and the output.
