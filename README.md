@@ -2,7 +2,7 @@
 <img height=150 src="src-tauri/icons/icon.png" />
 </div>
 
-<p align="center"><span><b>Network Debug Assistant</b> - UDP, TCP, Websocket, SocketIO, MQTT</span></p>
+<p align="center"><span><b>Network Debug Assistant</b> - UDP, TCP, Websocket, SocketIO, MQTT, Serialport</span></p>
 
 <div align="center">
 
