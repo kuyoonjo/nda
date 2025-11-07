@@ -18,6 +18,7 @@
     "clipboard-manager:allow-write-text",
     "udp:default",
     "tcp:default",
-    "mqtt:default"
+    "mqtt:default",
+    "serialplugin:default"
   ]
 }

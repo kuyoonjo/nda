@@ -9,6 +9,8 @@
   import Mqtt from "$lib/MQTT.svelte";
   import SocketIo from "../lib/SocketIO.svelte";
   import Websocket from "../lib/Websocket.svelte";
+  import Ble from "$lib/BLE.svelte";
+  import Serialport from "$lib/Serialport.svelte";
 
   (window as any).Buffer = Buffer;
 
@@ -46,5 +48,7 @@
     <SocketIo />
   {:else if label === "Websocket"}
     <Websocket />
+  {:else if label === "Serialport"}
+    <Serialport />
   {/if}
 </main>

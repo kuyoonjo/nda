@@ -115,6 +115,7 @@ fn main() {
         .plugin(tauri_plugin_udp::init())
         .plugin(tauri_plugin_tcp::init())
         .plugin(tauri_plugin_mqtt::init())
+        .plugin(tauri_plugin_serialplugin::init())
         .invoke_handler(tauri::generate_handler![open_save_dialog,])
         .setup(|app| {
             let new_udp_window = MenuItemBuilder::with_id("new_udp_window", "New UDP Window")
@@ -133,6 +134,9 @@ fn main() {
                     .build(app)?;
             let new_mqtt_window = MenuItemBuilder::with_id("new_mqtt_window", "New MQTT Window")
                 .accelerator("Shift+Alt+M")
+                .build(app)?;
+            let new_serialport_window = MenuItemBuilder::with_id("new_serialport_window", "New Serialport Window")
+                .accelerator("Shift+Alt+P")
                 .build(app)?;
 
             let theme_menu = SubmenuBuilder::with_id(app, "theme", "Theme").build()?;
@@ -168,6 +172,7 @@ fn main() {
                     &new_websocket_window,
                     &new_socketio_window,
                     &new_mqtt_window,
+                    &new_serialport_window,
                     &separator,
                     &theme_menu,
                 ])
@@ -185,6 +190,7 @@ fn main() {
 
                     if let Some(MenuItemKind::Submenu(file_menu)) = items.get(1) {
                         file_menu.insert(&separator, 0)?;
+                        file_menu.insert(&new_serialport_window, 0)?;
                         file_menu.insert(&new_mqtt_window, 0)?;
                         file_menu.insert(&new_socketio_window, 0)?;
                         file_menu.insert(&new_websocket_window, 0)?;
@@ -265,6 +271,11 @@ fn main() {
                 } else if event.id() == new_socketio_window.id() {
                     let label = "SocketIO-".to_string() + &new_id();
                     add_win_menu(app, &label, "Network Debug Assistant - SocketIO");
+                    let theme = get_theme(app);
+                    set_theme(app.clone(), theme).unwrap();
+                } else if event.id() == new_serialport_window.id() {
+                    let label = "Serialport-".to_string() + &new_id();
+                    add_win_menu(app, &label, "Network Debug Assistant - Serialport");
                     let theme = get_theme(app);
                     set_theme(app.clone(), theme).unwrap();
                 } else {

@@ -173,6 +173,7 @@
 
   async function onIOReady() {
     unlisten = await mqtt.listen((e) => {
+      if (e.payload.id !== windowId) return;
       if (e.payload.event.connect) {
         IOHandler.addOutput(`MQTT connected to ${uri}`, 'success');
         connectStatus = "connected";

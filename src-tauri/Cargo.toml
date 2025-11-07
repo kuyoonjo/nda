@@ -27,6 +27,7 @@ tokio = { version = "1.37.0", features = ["full"] }
 lazy_static = "1.4.0"
 tauri-plugin-tcp = "0.1.1"
 tauri-plugin-mqtt = "0.1.0"
+tauri-plugin-serialplugin = "2.16.0"
 
 [features]
 default = [ "custom-protocol" ]

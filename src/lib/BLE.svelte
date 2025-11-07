@@ -8,6 +8,7 @@
   import IOSection from "./IOSection.svelte";
   import { binaryGenerator, binaryParser, packInput, stringGenerator, stringParser, type IGenerator, type IIOHandler, type IParser } from "./IO";
   import * as udp from '@kuyoonjo/tauri-plugin-udp';
+    import ScanSection from "./ScanSection.svelte";
 
   let windowId: string = "";
 
@@ -132,7 +133,6 @@
 
   async function onIOReady() {
     unlisten = await udp.listen((e) => {
-      if (e.payload.id !== windowId) return;
       const data = parser.parse(e.payload.data);
       IOHandler.addOutput(`← [${e.payload.addr}] ${data}`);
     });
@@ -142,41 +142,7 @@
 </script>
 
 <main>
-  <div style="display: flex; margin-top: 12px; align-items: center;">
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label>Local</label>
-    <AutoFill
-      placeholder="e.g. 127.0.0.1:8080"
-      bind:value={local}
-      items={localItems}
-      disabled={!!bondAt}
-    />
-    {#if bondAt}
-      <button class="btn error" on:click={unbind}>Unbind</button>
-    {:else}
-      <button class="btn primary" on:click={bind}>Bind</button>
-      <button class="btn primary" on:click={clearLocalItem}>Clear</button>
-      {#if exLocalItems.includes(local)}
-        <button class="btn error" on:click={deleteLocalItem}>Delete</button>
-      {/if}
-    {/if}
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label style="margin-left: 16px">Remote</label>
-    <AutoFill
-      placeholder="e.g. 192.168.1.102:8256"
-      bind:value={remote}
-      items={remoteItems}
-    />
-    {#if remote && bondAt}
-      <button class="btn primary" on:click={send}>Send</button>
-    {/if}
-    {#if remote}
-      <button class="btn primary" on:click={clearRemoteItem}>Clear</button>
-    {/if}
-    {#if exRemoteItems.includes(remote)}
-      <button class="btn error" on:click={deleteRemoteItem}>Delete</button>
-    {/if}
-  </div>
+  <!-- <ScanSection /> -->
 
   <hr />
 

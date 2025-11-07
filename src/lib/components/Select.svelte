@@ -6,11 +6,16 @@
   export let style: string = "";
   let classname: string = "";
   export { classname as class };
+  export let mainClass = "";
   export let items: any[] = [];
+  export let disabled = false;
 
   let showList = false;
 
   function show() {
+    if (disabled) {
+      return;
+    }
     showList = true;
   }
   function hide() {
@@ -19,6 +24,9 @@
 
   const ed = createEventDispatcher<{ change: any }>();
   function onChange(v: any) {
+    if (disabled) {
+      return;
+    }
     value = v;
     ed("change", value);
   }
@@ -26,7 +34,7 @@
 
 <svelte:window on:click={hide} />
 
-<main>
+<main class={mainClass}>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div

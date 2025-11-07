@@ -5,7 +5,16 @@
   import { Buffer } from "buffer";
   import { getCurrentWindow } from "@tauri-apps/api/window";
   import IOSection from "./IOSection.svelte";
-  import { binaryGenerator, binaryParser, packInput, stringGenerator, stringParser, type IGenerator, type IIOHandler, type IParser } from "./IO";
+  import {
+    binaryGenerator,
+    binaryParser,
+    packInput,
+    stringGenerator,
+    stringParser,
+    type IGenerator,
+    type IIOHandler,
+    type IParser,
+  } from "./IO";
   import * as tcp from "@kuyoonjo/tauri-plugin-tcp";
 
   let windowId: string = "";
@@ -32,7 +41,7 @@
       await tcp.connect(windowId, remote);
     } catch (e) {
       console.error(e);
-      IOHandler.addOutput(`TCP failed to connect to ${remote}`, 'error');
+      IOHandler.addOutput(`TCP failed to connect to ${remote}`, "error");
       return;
     }
 
@@ -48,11 +57,11 @@
   async function disconnect() {
     try {
       await tcp.disconnect(windowId);
-      IOHandler.addOutput(`TCP disconnected from ${remote}`, 'success');
+      IOHandler.addOutput(`TCP disconnected from ${remote}`, "success");
       connectStatus = "disconnected";
     } catch (e) {
       console.error(e);
-      IOHandler.addOutput(`TCP failed to disconnected from ${remote}`, 'error');
+      IOHandler.addOutput(`TCP failed to disconnected from ${remote}`, "error");
     }
   }
 
@@ -70,8 +79,8 @@
     refreshInput();
     const { message, data } = await packInput(gen, input);
     const ok = await _send(message);
-    if (ok) IOHandler.addOutput(`→ [${remote}] ${data}`, 'success');
-    else IOHandler.addOutput(`→ [${remote}] ${data}`, 'error');
+    if (ok) IOHandler.addOutput(`→ [${remote}] ${data}`, "success");
+    else IOHandler.addOutput(`→ [${remote}] ${data}`, "error");
   }
 
   function clearRemoteItem() {
@@ -102,11 +111,12 @@
 
   async function onIOReady() {
     unlisten = await tcp.listen((e) => {
+      if (e.payload.id !== windowId) return;
       if (e.payload.event.connect) {
-        IOHandler.addOutput(`TCP connected to ${remote}`, 'success');
+        IOHandler.addOutput(`TCP connected to ${remote}`, "success");
         connectStatus = "connected";
       } else if (e.payload.event.disconnect) {
-        IOHandler.addOutput(`TCP disconnected from ${remote}`, 'error');
+        IOHandler.addOutput(`TCP disconnected from ${remote}`, "error");
         connectStatus = "disconnected";
       } else if (e.payload.event.message) {
         const data = parser.parse(e.payload.event.message.data);
