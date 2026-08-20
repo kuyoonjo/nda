@@ -3,14 +3,14 @@
   import * as dialog from "@tauri-apps/plugin-dialog";
   import Select from "./components/Select.svelte";
   import storage from "./storage";
-  import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+  import { writeTextFile, readFile } from "@tauri-apps/plugin-fs";
   import { downloadDir } from "@tauri-apps/api/path";
   import moment from "moment";
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import type { IGenerator, IParser } from "./IO";
   import { ContextMenu } from "./contextMenu";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-  import { Buffer } from 'buffer';
+  import { Buffer } from "buffer";
 
   export let id: string;
   export let input = "";
@@ -22,9 +22,12 @@
   }
   let outputCache: string[] = [];
   let outputTimer: any;
-  function addOutput(str: string, color: 'primary' | 'error' | 'success' = 'primary') {
+  function addOutput(
+    str: string,
+    color: "primary" | "error" | "success" = "primary"
+  ) {
     outputCache.push(
-      `<span class="color-${color}">[${moment().format("YYYY-MM-DD HH:mm:ss.SSS")}]</span> ${str}`,
+      `<span class="color-${color}">[${moment().format("YYYY-MM-DD HH:mm:ss.SSS")}]</span> ${str}`
     );
     if (!outputTimer) {
       outputTimer = setTimeout(() => {
@@ -65,7 +68,8 @@
     }
   }
   async function parseGeneratorJs(str: string) {
-    const b64 = "data:text/javascript;base64," + Buffer.from(str).toString("base64");
+    const b64 =
+      "data:text/javascript;base64," + Buffer.from(str).toString("base64");
     const m: (typeof defaultGenerators)[number] = await import(b64);
     console.log(m);
     const item: (typeof defaultGenerators)[number] = {
@@ -94,7 +98,8 @@
       ],
     });
     if (p) {
-      const js = await readTextFile(p);
+      const js = Buffer.from(await readFile(p)).toString();
+      console.log("importGenerator js", js.toString());
       const m = await parseGeneratorJs(js);
       let i = generators.findIndex((x) => x.name === m.name);
       if (~i) generators[i] = m;
@@ -140,10 +145,15 @@
   }
   async function loadExGenerators() {
     exGenerators = storage.get<typeof exGenerators>(k_exGenerators) || [];
+    console.log("loadExGenerators", exGenerators);
     for (const item of exGenerators) {
-      const m = await parseGeneratorJs(item.js);
-      generators.push(m);
-      generators = generators;
+      try {
+        const m = await parseGeneratorJs(item.js);
+        generators.push(m);
+        generators = generators;
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
@@ -172,7 +182,7 @@
       ],
     });
     if (p) {
-      const js = await readTextFile(p);
+      const js = Buffer.from(await readFile(p)).toString();
       const m = await parseParserJs(js);
       let i = parsers.findIndex((x) => x.name === m.name);
       if (~i) parsers[i] = m;
@@ -181,6 +191,7 @@
       i = exParsers.findIndex((x) => x.name === m.name);
       if (~i) exParsers[i] = { name: m.name, js };
       else exParsers.push({ name: m.name, js });
+      console.log("importParser", exParsers);
       storage.set(k_exParsers, exParsers);
       parser = m;
     }

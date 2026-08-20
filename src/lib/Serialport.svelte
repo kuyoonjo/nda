@@ -87,6 +87,8 @@
           const data = parser.parse(Array.from(u8a));
           IOHandler.addOutput(`← ${data}`);
         }, false);
+        await sp.writeDataTerminalReady(false);
+        await sp.writeRequestToSend(false);
         opened = sp;
         IOHandler.addOutput(`Serial port ${port} opened`, "success");
       } catch (e) {

@@ -103,12 +103,12 @@
 
   async function subscribe() {
     try {
-      await mqtt.subscribe(windowId, topic, 0);
-      IOHandler.addOutput(`→ [Subscribe ${topic}]`, 'success');
+      await mqtt.subscribe(windowId, subTopic, 0);
+      IOHandler.addOutput(`→ [Subscribe ${subTopic}]`, 'success');
       return true;
     } catch (e) {
       console.error(e);
-      IOHandler.addOutput(`→ [Subscribe ${topic}]`, 'error');
+      IOHandler.addOutput(`→ [Subscribe ${subTopic}]`, 'error');
       return false;
     }
   }
